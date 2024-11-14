@@ -8,7 +8,7 @@ export default function SignInUpPage(){
     return(
         <div>
             <Header/>
-            <div>
+            <div className="w-full h-full ">
                 <SignMainElem />
             </div>
         </div>
