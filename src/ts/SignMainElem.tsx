@@ -5,31 +5,32 @@ import SignUp from "./SignUp"
 
 export function LogPassInputs({isSignIn}: {isSignIn: boolean}) {
     return(
-        <div className="border-2 relative w-1/4 h-52 flex flex-col justify-center">
-            <div className="flex-col h-1/2 mt-2">
-                <p>Логин</p>
-                <input className="border-2 black" type="text" placeholder="Логин"/>
+        <div className="border-2 w-1/5 h-auto flex flex-col justify-center items-center p-5 mt-0 border-t-0 ">
+            <div className="flex flex-col mb-4">
+                <label htmlFor="login" className="mb-2">Логин</label>
+                <input id='login' className="border-2 border-gray-500 p-2" type="text" placeholder="Логин"/>
             </div>
-            <div className="flex-col h-1/2">
-                <p>Пароль</p>
-                <input className="border-2 black" type="password" placeholder="Пароль"/>
+            <div className="flex flex-col mb-4">
+                <label htmlFor='password' className="mb-2">Пароль</label>
+                <input id="password" className="border-2 border-gray-500 p-2" type="password" placeholder="Пароль"/>
             </div>
-            <button className="border-2 black rounded-full bg-blue-600 text-white mb-5 w-1/2 ml-1/4">{isSignIn? "Войти": "Зарегистрироваться"}</button>
-        </div>
+            {isSignIn?
+            <button className="border-2 border-black border-opacity-35 rounded-full bg-blue-800 text-white px-16 py-2">Войти</button>:
+            <button className="border-2 border-black border-opacity-35 rounded-full bg-blue-800 text-white px-4 py-2">Зарегистрироваться</button>   
+        }
+            </div>
     )
 }
 
 export default function SignMainElem() {
     const [isSignIn, setIsSignIn] = useState(true)
     return(
-        <div className="flex flex-col justify-center">
-            <div className="flex flex-row w-1/4 h-16">
-                <div className="w-auto h-min border-2">Войти</div>
-                <div className="w-auto h-min border-2">Зарегистрироваться</div>
+        <div className="flex flex-col items-center">
+            <div className="flex justify-center w-1/5 flex-row h-min mt-5 items-center">
+                <div className="flex justify-center items-center w-1/3 p-1 border-r-0  h-min border-2 hover:cursor-pointer" onClick={!isSignIn? ()=> setIsSignIn(true): undefined}>Войти</div>
+                <div className="flex justify-center items-center w-2/3 p-1 h-min border-2 hover:cursor-pointer" onClick={isSignIn? ()=> setIsSignIn(false): undefined}>Зарегистрироваться</div>
             </div>
-            <div className="flex justify-center align-middle">
                 {isSignIn? <SignIn isSignIn={true} />: <SignUp isSignIn={false} />}
-            </div>
         </div>
     )
 }
