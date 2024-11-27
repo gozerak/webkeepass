@@ -19,8 +19,8 @@ function HeaderLogOut() {
     
         const handleLogout = () => {
             // Логика выхода из системы
-            sessionStorage.removeItem('password');
-            navigate("/");
+            sessionStorage.clear();
+            navigate("/auth");
             window.location.reload();
         };
     
@@ -42,13 +42,14 @@ function HeaderLogOut() {
         }, [isDropdownOpen]);
     
         return (
-            <div className="user-icon-container" ref={dropdownRef}>
+            <div className="relative w-12 h-min mr-12 mt-3" ref={dropdownRef}>
+                <div className="hover:cursor-pointer text-lg" onClick={toggleDropdown}>gay</div>
                 {/* <div className={`user-icon ${userId? "unauthorized": "" }`} onClick={toggleDropdown}>
                     {userData ? userData.login : "Loading..."}
                 </div> */}
                 {isDropdownOpen && (
-                    <div className="dropdown-menu">
-                        <button className="dropdown-item" onClick={handleLogout}>Выйти</button>
+                    <div className="relative overflow-auto">
+                        <button className="fixed z-50 border-2 bg-white text-lg" onClick={handleLogout}>Выйти</button>
                     </div>
                 )}
             </div>
@@ -56,10 +57,11 @@ function HeaderLogOut() {
     }
 
 export default function Header({pass}: {pass?:string | null}) {
+    console.log(pass)
     return(
-        <div className="border-b-2 solid black h-14">
-        <HeaderName/>
-        {pass && <HeaderLogOut/>}
+        <div className="border-b-2 solid black h-14 flex flex-row justify-between relative">
+            <HeaderName/>
+            {pass && <HeaderLogOut/>}
         </div>
     )
 }
