@@ -9,8 +9,8 @@ function App() {
   const [pass, setPass] = useState<string | null>(null)
 
   useEffect(() => {
-    if(sessionStorage.getItem('password')) {
-      setPass(sessionStorage.getItem("password"))
+    if(sessionStorage.getItem('pass')) {
+      setPass(sessionStorage.getItem("pass"))
     }
   })
 

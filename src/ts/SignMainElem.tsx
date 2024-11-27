@@ -4,7 +4,7 @@ import SignIn from "./SignIn"
 import SignUp from "./SignUp"
 import { useNavigate } from "react-router-dom";
 
-const API_BASE_URL = 'https://10.14.113.107:7269'
+export const API_BASE_URL = 'https://10.14.113.107:7269'
 
 async function computeSha256Hash(message:string) {
     // Преобразуем строку в ArrayBuffer
@@ -115,7 +115,7 @@ export function LogPassInputs({isSignIn}: {isSignIn: boolean}) {
         const isSuccess = await sendHash(userData, url)
 
         if (isSuccess) {
-            sessionStorage.setItem('pass', loginData.password)
+            sessionStorage.setItem('pass', passwordHash)
             navigate("/");
         }
 
