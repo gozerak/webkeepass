@@ -3,7 +3,7 @@ import { NavLink, useNavigate } from "react-router-dom";
 
 function HeaderName() {
     return(
-        <p className="16px bold black pl-10 pt-5">Webkeepass</p>
+        <p className="16px bold black pl-10 pt-5">WebNedoKeepass</p>
     )
 }
 

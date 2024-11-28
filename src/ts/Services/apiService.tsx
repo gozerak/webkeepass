@@ -1,4 +1,3 @@
-import { error } from "console";
 import { API_BASE_URL } from "../SignMainElem";
 
 export interface EntriesData {
