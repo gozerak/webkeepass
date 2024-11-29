@@ -2,6 +2,18 @@ import React from "react";
 import { useEffect, useState } from "react";
 import { EntriesData, fetchEntries } from './Services/apiService';
 import EntryInstance from "./EntryInstance";
+import { useEntriesData } from "./hooks/useEntriesData";
+import CryptoJS from "crypto-js";
+
+function decodePass(pass:string | undefined){
+    const userPass = sessionStorage.getItem('pass')
+    if (userPass && pass) {
+        const bytes = CryptoJS.AES.decrypt(pass, userPass);
+        const decryptedText = bytes.toString(CryptoJS.enc.Utf8);
+        return decryptedText;
+    }
+    return null
+}
 
 function EntriesTable({data}: 
     {data: EntriesData[]}
@@ -18,17 +30,20 @@ function EntriesTable({data}:
                 </tr>
             </thead>
             <tbody className="odd:children:bg-white even:children:bg-gray-200">
-                {data?
+                {Array.isArray(data) && data.length > 0 ? (
                     (data.map(entry => (
                         <tr key={entry.id} className="children:px-5 children:py-6 children:border-2 children:border-gray-200 children:text-center">
                             <td>{entry.record_title}</td>
                             <td>{entry.user_name}</td>
-                            <td>{entry.password}</td>
+                            <td>{decodePass(entry.password)}</td>
                             <td>{entry.record_url}</td>
                             <td>{entry.description}</td>
                         </tr>
-                    ))) : (
-                        <p>Записей не обнаружено!</p>
+                    )))
+                ) : (
+                        <tr>
+                            <td colSpan={5}>Записей не обнаружено!</td>
+                        </tr>
                     )
                 }
             </tbody>
@@ -36,43 +51,12 @@ function EntriesTable({data}:
     )
 }
 
-export default function Entries() {
-    const [entriesData, setEntriesData] = useState <EntriesData[]>([{
-        id: "1",
-        user_id: "12334",
-        record_title: "tete",
-        password: "123",
-        user_name: "gena",
-        description: "bimbim",
-        record_url: "baambam",
-        created_date: "todayble"
-        }, {
-            id: "2",
-            user_id: "asd",
-            record_title: "asf",
-            password: "123",
-            user_name: "dda",
-            description: "zxcm",
-            record_url: "bdsadam",
-            created_date: "gggg"
-            }])
-    // useEffect(() => {
-    //     const fetchData = async() => {
-    //         const userId = sessionStorage.getItem('userId')
-    //         const authToken = sessionStorage.getItem('authToken')
-    //         if (userId && authToken) {
-    //             const data = await fetchEntries(userId, authToken)
-    //             if (data) {
-    //                 setEntriesData(data)
-    //             }
-    //         }
-    // }
-    // fetchData();
-    // })
+export default function Entries({userId, authToken}:{userId: string | null, authToken: string | null}) {
+    const{entries, loading, refreshEntries} = useEntriesData({userId, authToken});
 
     return (
         <div className=" ml-20 flex flex-col">
-            <EntriesTable data={entriesData} />
+            <EntriesTable data={entries} />
         </div>
     )
 }

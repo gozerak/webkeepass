@@ -1,6 +1,8 @@
 import React, { ChangeEvent, useState } from "react"
 import Modal from "./Modal";
 import { AddEntryData } from "./Services/apiService";
+import { API_BASE_URL } from './SignMainElem';
+import CryptoJS from "crypto-js";
 
 function AddEntryInput({title,type='text', name, value, onChange, required }: {
     title: string,
@@ -26,10 +28,15 @@ function AddEntryInput({title,type='text', name, value, onChange, required }: {
     )
 }
 
+function createEncryptedPass (pass:string, userPass:string) {
+    const cipherText= CryptoJS.AES.encrypt(pass, userPass).toString();
+    return cipherText;
+}
+
 export default function AddEntry () {
-    const [isModalOpen, setIsModalOpen] = useState(true);
+    const [isModalOpen, setIsModalOpen] = useState(false);
     const [againPassword, setAgainPassword] = useState('');
-    const [isPasswordsMatch] = useState(true);
+    const [isPasswordsMatch, setIsPasswordsMatch] = useState(true);
     const [addEntryData, setAddEntryData] = useState<AddEntryData>({
         user_id: "",
         record_title: "",
@@ -43,20 +50,70 @@ export default function AddEntry () {
         setIsModalOpen(true)
     }
 
+    const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, value } = e.target;
+        setAddEntryData((prevData) => ({ ...prevData, [name]: value }));
+
+        // Проверить совпадение паролей
+        if (name === 'password') {
+            setIsPasswordsMatch(value === againPassword);
+        }
+    };
+
+    const handleRepeatPasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { value } = e.target;
+        setAgainPassword(value);
+
+        // Проверить совпадение паролей
+        setIsPasswordsMatch(value === addEntryData.password);
+    };
+
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        if(!sessionStorage.getItem('pass') && sessionStorage.getItem('userId')){
+        const userPass = sessionStorage.getItem('pass')
+        const userId = sessionStorage.getItem('userId')
+        const authToken = sessionStorage.getItem('authToken')
+        if(!userPass || !userId || !authToken){
             alert("Необходимо перелогиниться!")
     }
         else {
             const userId = sessionStorage.getItem('userId')
             // const folderId = sessionStorage.getItem('folderId')
-            
+            const cipherPass = createEncryptedPass(addEntryData.password, userPass)
+            const updatedAddEntryData = {
+                ...addEntryData,
+                password: cipherPass,
+                user_id: userId,
+                // folder_id: folderId
+            }
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/PasswordsRecords/CreatePasswordRecord`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify(updatedAddEntryData)
+                });
+                if (response.ok) {
+                    console.log('Работа создалась!')
+                    //логика для AJAX обновления страницы
+                } else {
+                    console.error('Все пошло по пизде')
+                }
+            } catch (error) {
+                console.error("Error:", error)
+            }
         }
-}
+        setIsModalOpen(false)
+};
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         setAddEntryData({...addEntryData, [e.target.name]: e.target.value})
+    }
+
+    const checkPasswordsMatch = (pass: string, repeatPass: string) => {
+         setIsPasswordsMatch(pass === repeatPass);
     }
 
     return(
@@ -84,7 +141,7 @@ export default function AddEntry () {
                 title="Пароль"
                 name="password"
                 value={addEntryData.password}
-                onChange={handleChange}
+                onChange={handlePasswordChange}
                 />
 
                 <AddEntryInput
@@ -92,7 +149,7 @@ export default function AddEntry () {
                 title="Пароль еще раз"
                 name="againPassword"
                 value={againPassword}
-                onChange={(e) => setAgainPassword(e.target.value)}
+                onChange={handleRepeatPasswordChange}
                 />
 
                 <AddEntryInput

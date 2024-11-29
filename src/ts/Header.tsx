@@ -57,7 +57,6 @@ function HeaderLogOut() {
     }
 
 export default function Header({pass}: {pass?:string | null}) {
-    console.log(pass)
     return(
         <div className="border-b-2 solid black h-14 flex flex-row justify-between relative">
             <HeaderName/>
