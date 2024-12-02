@@ -12,10 +12,22 @@ export interface EntriesData {
     created_date: string
 }
 
+export interface FoldersData {
+    id: string,
+    folder_id: string,
+    user_id: string,
+    folder_name: string,
+    folder_notes: string, 
+    created_date: string,
+    primaryFolder_id: string,
+    entries: EntriesData[]; // Добавляем записи
+    children: FoldersData[];
+}
+
 export async function fetchEntries ({userId, authToken}:{
     userId: string | null, 
     authToken: string | null
-}): Promise<EntriesData[]> {
+}): Promise<[EntriesData[], FoldersData[]]> {
     const response = await fetch (`${API_BASE_URL}/api/PasswordsRecords/GetPasswordRecord?userId=${userId}`, {
         method:'GET',
         headers: {
@@ -26,8 +38,9 @@ export async function fetchEntries ({userId, authToken}:{
     if (response.ok) {
         const json = await response.json()
         const data: EntriesData[] = json.value.passwords
+        const folders: FoldersData[] = json.value.folders
         console.log(data)
-        return data;
+        return [data, folders];
     } else {
         throw new Error("Failed to fetch entries");
     }

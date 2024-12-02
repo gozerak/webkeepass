@@ -1,16 +1,18 @@
 import { useEffect, useState } from "react"
-import { EntriesData, fetchEntries } from "../Services/apiService"
+import { EntriesData, fetchEntries, FoldersData } from "../Services/apiService"
 
 export const useEntriesData = ({userId, authToken}:
     {userId: string | null, authToken: string | null}) => {
     const [entries, setEntries] = useState<EntriesData[]>([]);
+    const [folders, setFolders] = useState<FoldersData[]>([]);
     const [loading, setLoading] = useState(true);
 
     const getData = async ({userId, authToken}:
         {userId: string | null, authToken: string | null}) => {
         try {
-            const entriesData = await fetchEntries({userId, authToken});
+            const [entriesData, foldersData] = await fetchEntries({userId, authToken});
             setEntries(entriesData);
+            setFolders(foldersData)
         } catch (error) {
             console.error("Error fetching entriesData:", error)
         } finally {
@@ -26,5 +28,5 @@ export const useEntriesData = ({userId, authToken}:
         getData({userId, authToken});
     }
 
-    return {entries, loading, refreshEntries}
+    return {entries, folders, loading, refreshEntries}
 }
