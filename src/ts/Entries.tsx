@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { useEffect, useState } from "react";
 import { EntriesData, fetchEntries } from './Services/apiService';
 import EntryInstance from "./EntryInstance";
@@ -41,7 +41,7 @@ function EntriesTable({data, showMessage}:
     return(
         <table className="fixed border-2 border-gray-200 mt-4 table-fixed w-1/2 mb-5 z-2">
             <thead> 
-                <tr className="children:w-fit children:overflow-hidden children:text-ellipsis children:whitespace-nowrap children:font-semibold children:p-4 children:bg-gray-100 children:border-2 children:border-gray-300">
+                <tr className="children:w-fit children:select-none children:overflow-hidden children:text-ellipsis children:whitespace-nowrap children:font-semibold children:p-4 children:bg-gray-100 children:border-2 children:border-gray-300">
                     <th>Название</th>
                     <th>Логин</th>
                     <th>Пароль</th>
@@ -53,38 +53,44 @@ function EntriesTable({data, showMessage}:
                 {Array.isArray(data) && data.length > 0 ? (
                     (data.map(entry => (
                         <tr key={entry.id} className="children:px-5 children:overflow-hidden children:text-ellipsis children:py-6 children:border-2 children:border-gray-200 children:text-center children:hover:cursor-pointer">
+                            
                             <td data-value={entry.record_title} onClick={(e) => {
         const valueToCopy = e.currentTarget.getAttribute("data-value");
         if (valueToCopy) {
             copy(valueToCopy);
         }
     }}>{entry.record_title}</td>
+
                             <td data-value={entry.user_name} onClick={(e) => {
         const valueToCopy = e.currentTarget.getAttribute("data-value");
         if (valueToCopy) {
             copy(valueToCopy);
         }
     }}>{entry.user_name}</td>
-                            <td data-password={decodePass(entry.password)} onClick={(e) => {
+
+                            <td className="overflow-clip" data-password={decodePass(entry.password)} onClick={(e) => {
         const valueToCopy = e.currentTarget.getAttribute("data-password");
         if (valueToCopy) {
             copy(valueToCopy);
         }
     }}>
-                                {decodePass(entry.password)? "•".repeat(decodePass(entry.password).length) : null}
+            {decodePass(entry.password)? "•".repeat(decodePass(entry.password).length) : null}
                             </td>
+
                             <td data-value={entry.record_url} onClick={(e) => {
         const valueToCopy = e.currentTarget.getAttribute("data-value");
         if (valueToCopy) {
             copy(valueToCopy);
         }
     }}>{entry.record_url}</td>
+
                             <td data-value={entry.description} onClick={(e) => {
         const valueToCopy = e.currentTarget.getAttribute("data-value");
         if (valueToCopy) {
             copy(valueToCopy);
         }
     }}>{entry.description}</td>
+
                         </tr>
                     )))
                 ) : (
@@ -98,10 +104,11 @@ function EntriesTable({data, showMessage}:
     )
 }
 
-export default function Entries({userId, authToken, entries, refreshEntriesData}:{
+export default function Entries({userId, authToken, entries, chosenFolder, refreshEntriesData}:{
     userId: string | null, 
     authToken: string | null,
     entries: EntriesData[],
+    chosenFolder: string,
     refreshEntriesData: (userId: string | null, authToken: string | null) => void;
 }) {
     // const {entries, loading, refreshEntries} = useEntriesData({userId, authToken});
@@ -112,9 +119,17 @@ export default function Entries({userId, authToken, entries, refreshEntriesData}
         setTimeout(() => setMessage(null), 2000);
     }
 
+    const filteredEntries = useMemo(() => {
+        if(!chosenFolder) {
+            return entries;
+        }
+
+        return entries.filter((entry) => entry.folder_id === chosenFolder)
+    }, [entries, chosenFolder])
+
     return (
         <div className=" relative flex flex-col w-1/2">
-            <EntriesTable data={entries} showMessage={showMessage} />
+            <EntriesTable data={filteredEntries} showMessage={showMessage} />
             {message && (
                 <div
                     className={`fixed bottom-5 left-1/2 transform -translate-x-1/2 h-fit w-fit px-4 py-2 text-white text-center rounded-md ${

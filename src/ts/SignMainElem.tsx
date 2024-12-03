@@ -89,6 +89,7 @@ async function postData({url, myData}: {
         alert("Вы успешно вошли!")
         sessionStorage.setItem('userId', logInData.userId);
         sessionStorage.setItem('authToken', logInData.authToken);
+        sessionStorage.setItem('userName', myData.userName);
         return data;
     } else {
         alert("Что-то пошло не так")

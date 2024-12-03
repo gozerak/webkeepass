@@ -7,7 +7,7 @@ function HeaderName() {
     )
 }
 
-function HeaderLogOut() {
+function HeaderLogOut({userName} : {userName: string}) {
     
         const [isDropdownOpen, setDropdownOpen] = useState(false);
         const dropdownRef = useRef<HTMLDivElement | null>(null);
@@ -29,7 +29,7 @@ function HeaderLogOut() {
                 setDropdownOpen(false);
             }
         };
-    
+        
         useEffect(() => {
             if (isDropdownOpen) {
                 document.addEventListener("mousedown", handleClickOutside);
@@ -40,10 +40,11 @@ function HeaderLogOut() {
                 document.removeEventListener("mousedown", handleClickOutside);
             };
         }, [isDropdownOpen]);
-    
+        
+
         return (
-            <div className="relative w-12 h-min mr-12 mt-3" ref={dropdownRef}>
-                <div className="hover:cursor-pointer text-lg" onClick={toggleDropdown}>gay</div>
+            <div className="relative w-fit h-min mr-12 mt-3" ref={dropdownRef}>
+                <div className="hover:cursor-pointer text-lg" onClick={toggleDropdown}>{userName? userName: 'Профиль'}</div>
                 {/* <div className={`user-icon ${userId? "unauthorized": "" }`} onClick={toggleDropdown}>
                     {userData ? userData.login : "Loading..."}
                 </div> */}
@@ -57,10 +58,17 @@ function HeaderLogOut() {
     }
 
 export default function Header({pass}: {pass?:string | null}) {
+    const [userName, setUserName] = useState('')
+    useEffect(() => {
+        const name = sessionStorage.getItem('userName');
+        if (name) {
+            setUserName(name);
+        };
+    }, []);
     return(
         <div className="border-b-2 solid black h-14 flex flex-row justify-between relative">
             <HeaderName/>
-            {pass && <HeaderLogOut/>}
+            {userName && <HeaderLogOut userName={userName}/>}
         </div>
     )
 }

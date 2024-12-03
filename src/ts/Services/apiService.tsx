@@ -53,4 +53,5 @@ export interface AddEntryData {
     user_name: string,
     description: string,
     record_url: string,
+    folder_id: string
 }
