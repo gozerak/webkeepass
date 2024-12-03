@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import AddEntry from "./AddEntry";
 import Entries from "./Entries";
 import Header from "./Header";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useEntriesData } from "./hooks/useEntriesData";
 import Folders from "./Folders";
 import { EntriesData, FoldersData } from "./Services/apiService";
@@ -59,13 +59,15 @@ export default function MainPage({pass}: {pass:string | null}) {
 
     const folderTree = buildFolderTree(folders, entries);
 
+    const [chosenFolder, setChosenFolder] = useState("");
+
     return(
         <div className="w-full h-full">
             <Header pass ={pass}/>
             <div className="flex flex-row ">
-                <Folders folders={folderTree} />
-                <Entries userId={userId} authToken={authToken} entries={entries} refreshEntriesData={refreshEntries} />
-                <AddEntry />
+                <Folders folders={folderTree} chosenFolder={chosenFolder} setChosenFolder={setChosenFolder} />
+                <Entries userId={userId} authToken={authToken} entries={entries} chosenFolder={chosenFolder} refreshEntriesData={refreshEntries} />
+                <AddEntry folders={folders} chosenFolder={chosenFolder} />
             </div>
         </div>
     )

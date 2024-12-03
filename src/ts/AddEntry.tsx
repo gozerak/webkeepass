@@ -1,6 +1,6 @@
 import React, { ChangeEvent, useState } from "react"
 import Modal from "./Modal";
-import { AddEntryData } from "./Services/apiService";
+import { AddEntryData, FoldersData } from "./Services/apiService";
 import { API_BASE_URL } from './SignMainElem';
 import CryptoJS from "crypto-js";
 
@@ -33,7 +33,10 @@ function createEncryptedPass (pass:string, userPass:string) {
     return cipherText;
 }
 
-export default function AddEntry () {
+export default function AddEntry ({folders, chosenFolder}: {
+    folders: FoldersData[],
+    chosenFolder: string
+}) {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [againPassword, setAgainPassword] = useState('');
     const [isPasswordsMatch, setIsPasswordsMatch] = useState(true);
@@ -44,6 +47,7 @@ export default function AddEntry () {
         user_name: "",
         description: "",
         record_url: "",
+        folder_id: chosenFolder,
     });
 
     const handleClick = () => {
