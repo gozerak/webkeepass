@@ -4,7 +4,7 @@ import { AddEntryData, FoldersData } from "./Services/apiService";
 import { API_BASE_URL } from './SignMainElem';
 import CryptoJS from "crypto-js";
 
-function AddEntryInput({title,type='text', name, value, onChange, required }: {
+export function AddEntryInput({title,type='text', name, value, onChange, required }: {
     title: string,
     type?: string,
     name: string,
@@ -16,7 +16,7 @@ function AddEntryInput({title,type='text', name, value, onChange, required }: {
         <div className="flex flex-col">
             <p className="text-lg pb-3 select-none">{title}</p>
             <input
-            className="border-2 w-1/2 border-gray-300 outline-none pl-1"
+            className="border-2 w-4/5 border-gray-300 outline-none pl-1"
             autoComplete="off"
             type={type}
             name={name}
@@ -33,13 +33,17 @@ function createEncryptedPass (pass:string, userPass:string) {
     return cipherText;
 }
 
-export default function AddEntry ({folders, chosenFolder}: {
+export default function AddEntry ({folders, chosenFolder, refresh}: {
     folders: FoldersData[],
-    chosenFolder: string
+    chosenFolder: string,
+    refresh: (userId: string | null, authToken: string | null) => void;
 }) {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [againPassword, setAgainPassword] = useState('');
     const [isPasswordsMatch, setIsPasswordsMatch] = useState(true);
+
+    const rootFolder = folders.find(folder => folder.primaryFolder_id === null)?.folder_id || "";
+
     const [addEntryData, setAddEntryData] = useState<AddEntryData>({
         user_id: "",
         record_title: "",
@@ -47,11 +51,16 @@ export default function AddEntry ({folders, chosenFolder}: {
         user_name: "",
         description: "",
         record_url: "",
-        folder_id: chosenFolder,
+        folder_id: chosenFolder || rootFolder,
     });
 
     const handleClick = () => {
         setIsModalOpen(true)
+
+        setAddEntryData(prevData => ({
+            ...prevData,
+            folder_id: chosenFolder || rootFolder,
+        }));
     }
 
     const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -82,13 +91,11 @@ export default function AddEntry ({folders, chosenFolder}: {
     }
         else {
             const userId = sessionStorage.getItem('userId')
-            // const folderId = sessionStorage.getItem('folderId')
             const cipherPass = createEncryptedPass(addEntryData.password, userPass)
             const updatedAddEntryData = {
                 ...addEntryData,
                 password: cipherPass,
                 user_id: userId,
-                // folder_id: folderId
             }
             try {
                 const response = await fetch(`${API_BASE_URL}/api/PasswordsRecords/CreatePasswordRecord`, {
@@ -102,6 +109,7 @@ export default function AddEntry ({folders, chosenFolder}: {
                 if (response.ok) {
                     console.log('Работа создалась!')
                     //логика для AJAX обновления страницы
+                    refresh(userId, authToken)
                 } else {
                     console.error('Все пошло по пизде')
                 }
@@ -112,7 +120,7 @@ export default function AddEntry ({folders, chosenFolder}: {
         setIsModalOpen(false)
 };
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         setAddEntryData({...addEntryData, [e.target.name]: e.target.value})
     }
 
@@ -123,7 +131,7 @@ export default function AddEntry ({folders, chosenFolder}: {
     return(
         <>
         <div className="">
-        <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
+        <Modal width="1/3" isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
             <form onSubmit={handleSubmit} className="flex flex-col p-2">
                 <AddEntryInput
                 title='Название'
@@ -162,27 +170,41 @@ export default function AddEntry ({folders, chosenFolder}: {
                 value={addEntryData.record_url}
                 onChange={handleChange}
                 />
+
+                <div className="flex flex-col">
+                    <p className="text-lg pb-3 select-none">Папка</p>
+                    <select
+                        className="border-2 w-4/5 border-gray-300 outline-none pl-1"
+                        name="folder_id"
+                        value={addEntryData.folder_id}
+                        onChange={handleChange}
+                        >
+                            {folders.map((folder) => (
+                                <option key={folder.folder_id} value={folder.folder_id}>{folder.folder_name}</option>
+                            ))}
+                        </select>
+                </div>
                 
                 <div className="">
                 <p className="text-lg pb-3 select-none">Дополнительно</p>
                 <textarea
                 rows={5}
                 cols={50}
-                className="border-2 w-1/2 border-gray-300 outline-none pl-1"
+                className="border-2 w-4/5 border-gray-300 outline-none pl-1"
                 autoComplete="off"
                 name="description"
                 value={addEntryData.description}
                 onChange={handleChange}
                 />
                 </div>
-                <div className="flex flex-row justify-between mt-5">
+                <div className="flex flex-row justify-around mt-5">
                     <button type="button"
-                    className="border-2 w-1/6 h-10 bg-red-600 text-white rounded-md"
+                    className="border-2 w-28 h-10 bg-red-600 text-white rounded-md"
                     onClick={() => setIsModalOpen(false)}>
                         Назад
                     </button>
                     <button type="submit"
-                    className="border-2 w-1/6 h-10 bg-green-600 text-white rounded-md disabled:bg-green-400 disabled:hover:cursor-not-allowed" 
+                    className="border-2 w-28 h-10 bg-green-600 text-white rounded-md disabled:bg-green-400 disabled:hover:cursor-not-allowed" 
                     disabled={!isPasswordsMatch}>
                         Добавить
                     </button> 
@@ -190,7 +212,7 @@ export default function AddEntry ({folders, chosenFolder}: {
             </form>
         </Modal>
         </div>
-        <div className="align-middle h-10 mt-5 mr-16 min-w-12 max-w-fit">
+        <div className="align-middle h-14 mt-5 mr-16 min-w-12 max-w-fit">
         <button className="border-2 border-gray-300 bg-green-500 w-fit p-2 align-middle text-nowrap text-white" onClick={handleClick}>Добавить запись</button>
         </div>
         </>

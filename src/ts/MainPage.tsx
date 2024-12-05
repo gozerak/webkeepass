@@ -30,14 +30,6 @@ function buildFolderTree(folders: FoldersData[], passwords: EntriesData[]) {
         }
     });
 
-    // Привязываем записи к папкам
-    passwords.forEach(password => {
-        const folder = folderMap[password.folder_id];
-        if (folder) {
-            folder.entries.push(password);
-        }
-    });
-
     return rootFolders;
 }
 
@@ -65,9 +57,9 @@ export default function MainPage({pass}: {pass:string | null}) {
         <div className="w-full h-full">
             <Header pass ={pass}/>
             <div className="flex flex-row ">
-                <Folders folders={folderTree} chosenFolder={chosenFolder} setChosenFolder={setChosenFolder} />
+                <Folders folders={folderTree} chosenFolder={chosenFolder} refresh={refreshEntries} setChosenFolder={setChosenFolder} />
                 <Entries userId={userId} authToken={authToken} entries={entries} chosenFolder={chosenFolder} refreshEntriesData={refreshEntries} />
-                <AddEntry folders={folders} chosenFolder={chosenFolder} />
+                <AddEntry folders={folders} chosenFolder={chosenFolder} refresh={refreshEntries} />
             </div>
         </div>
     )

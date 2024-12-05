@@ -1,8 +1,6 @@
 import React, { useMemo } from "react";
-import { useEffect, useState } from "react";
-import { EntriesData, fetchEntries } from './Services/apiService';
-import EntryInstance from "./EntryInstance";
-import { useEntriesData } from "./hooks/useEntriesData";
+import { useState } from "react";
+import { EntriesData } from './Services/apiService';
 import CryptoJS from "crypto-js";
 
 function decodePass(pass:string | undefined){
