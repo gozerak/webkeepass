@@ -1,5 +1,5 @@
 import { FoldersData } from "./Services/apiService"
-import React, { useState } from "react"
+import React, { useEffect, useState } from "react"
 import { API_BASE_URL } from "./SignMainElem";
 import Modal from "./Modal";
 import { AddEntryInput } from "./AddEntry";
@@ -8,12 +8,14 @@ function FolderTree({
     folders, 
     chosenFolder, 
     setChosenFolder,
-    refresh 
+    refresh ,
+    foldersForSelect
 }: { 
     folders: FoldersData[], 
     chosenFolder: string,
     setChosenFolder: (folderId: string) => void,
     refresh: (userId: string | null, authToken: string | null) => void;
+    foldersForSelect: FoldersData[]
 }) {
     const [openFolders, setOpenFolders] = useState<Set<string>>(new Set());
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -31,7 +33,7 @@ function FolderTree({
             return newState;
         });
     };
-    console.log(folders)
+    // console.log(folders[0].primaryFolder_id)
     const handleFolder = (folder: FoldersData) => {
         if (folder.primaryFolder_id) {
             setChosenFolder(folder.folder_id)
@@ -42,7 +44,7 @@ function FolderTree({
     }
 
     const handleDeleteFolder = (folders: FoldersData[], folderId: string) =>{
-        console.log(!!folders.filter((folder)=> folder.primaryFolder_id === folderId).length)
+    
         if (folders.filter((folder)=> folder.primaryFolder_id === folderId).length) {
             setIsPrimaryFolder(true)
         }
@@ -54,24 +56,25 @@ function FolderTree({
     }
 
     const handleDelete = async (folderId: string) => {
-        const userId = sessionStorage.getItem("userId")
-        const authToken = sessionStorage.getItem("authToken")
-        if (userId && authToken) {
-            const response = await fetch (`${API_BASE_URL}/api/PasswordsRecords/DeleteFolder?folderId=${folderId}&userId=${userId}`, {
-                method: "DELETE",
-                headers:{
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${authToken}`
-                }
-            });
-            if (response.ok) {
-                console.log("Папка удалена!")
-                refresh(userId, authToken)
-                setChosenFolder('')
-            } else {
-                console.error("Не удалилась папка")
-            } 
-        } ;
+        // const userId = sessionStorage.getItem("userId")
+        // const authToken = sessionStorage.getItem("authToken")
+        // if (userId && authToken) {
+        //     const response = await fetch (`${API_BASE_URL}/api/PasswordsRecords/DeleteFolder?folderId=${folderId}&userId=${userId}`, {
+        //         method: "DELETE",
+        //         headers:{
+        //             "Content-Type": "application/json",
+        //             "Authorization": `Bearer ${authToken}`
+        //         }
+        //     });
+        //     if (response.ok) {
+        //         console.log("Папка удалена!")
+        //         refresh(userId, authToken)
+        //         setChosenFolder('')
+        //         setIsModalOpen(false)
+        //     } else {
+        //         console.error("Не удалилась папка")
+        //     } 
+        // } ;
         
     }
 
@@ -98,7 +101,7 @@ function FolderTree({
                             <button
                                 onClick={(e) => {
                                     e.stopPropagation();
-                                    handleDeleteFolder(folders, folder.folder_id);
+                                    handleDeleteFolder(foldersForSelect, folder.folder_id);
                                 }}
                                 className="hidden group-hover:block text-red-500 ml-2"
                             >
@@ -124,13 +127,14 @@ function FolderTree({
                                 folders={folder.children}
                                 chosenFolder={chosenFolder}
                                 setChosenFolder={setChosenFolder}
-                                refresh={refresh} />
+                                refresh={refresh}
+                                foldersForSelect={foldersForSelect} />
                             </ul>
                         )}
                     </li>
                 ))}
             </ul>
-            {<Modal width="2/3" isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
+            {<Modal width="1/3" isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
                 <div className="bg-white w-100 h-fit ">
                 {isPrimaryFolder? (
                     <div className="relative w-100 p-x-2 flex flex-col items-center">
@@ -158,26 +162,39 @@ export default function Folders ({
     folders, 
     chosenFolder,
     setChosenFolder,
-    refresh}: {
+    refresh,
+    foldersForSelect}: {
     folders: FoldersData[];
     chosenFolder: string;
     setChosenFolder: (folderId: string) => void;
     refresh: (userId: string | null, authToken: string | null) => void;
+    foldersForSelect: FoldersData[];
 }) {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const userId = sessionStorage.getItem('userId')
     const authToken = sessionStorage.getItem('authToken')
-
-    const rootFolder = folders.find(folder => folder.primaryFolder_id === null)?.folder_id || "";
+    const [rootFolder, setRootFolder] = useState('');
+    useEffect(() => {
+        if (!rootFolder) {
+            const addRootFolder = foldersForSelect.find(folder => folder.primaryFolder_id === null)?.folder_id;
+            if(addRootFolder){
+                setRootFolder(addRootFolder)
+        }}
+    }, [foldersForSelect, rootFolder])
 
     const [addFolderData, setAddFolderData] = useState({
         user_id: userId,
         folder_name: "",
         folder_notes: "",
-        primaryFolder_id: chosenFolder || rootFolder
+        primaryFolder_id: ""
     })
-
+    // console.log(chosenFolder)
     const handleAddFolder = async () => {
+        if (addFolderData.primaryFolder_id === "") {
+            setAddFolderData({...addFolderData, primaryFolder_id: rootFolder})
+        }
+        console.log(addFolderData)
+        console.log(rootFolder)
         const response = await fetch (`${API_BASE_URL}/api/PasswordsRecords/CreatePasswordsFolders`, {
             method:"POST",
             headers:{
@@ -199,8 +216,9 @@ export default function Folders ({
         setIsModalOpen(true);
         setAddFolderData(prevData => ({
             ...prevData,
-            folder_id: chosenFolder || rootFolder,
+            primaryFolder_id: chosenFolder || rootFolder,
         }));
+        console.log(addFolderData.primaryFolder_id)
     }
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -225,11 +243,11 @@ export default function Folders ({
                         <p className="text-lg pb-3 select-none">Родительская папка</p>
                         <select
                             className="border-2 w-4/5 border-gray-300 outline-none pl-1"
-                            name="folder_id"
+                            name="primaryFolder_id"
                             value={addFolderData.primaryFolder_id}
                             onChange={handleChange}
                             >
-                                {folders.map((folder) => (
+                                {foldersForSelect.map((folder) => (
                                     <option key={folder.folder_id} value={folder.folder_id}>{folder.folder_name}</option>
                                 ))}
                             </select>
@@ -268,7 +286,8 @@ export default function Folders ({
             folders={folders}
             chosenFolder={chosenFolder}
             setChosenFolder={setChosenFolder}
-            refresh={refresh} />
+            refresh={refresh}
+            foldersForSelect={foldersForSelect} />
         </div>
     )
 }

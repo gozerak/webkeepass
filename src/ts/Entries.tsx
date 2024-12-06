@@ -50,23 +50,23 @@ function EntriesTable({data, showMessage}:
             <tbody className="odd:children:bg-white even:children:bg-gray-200 ">
                 {Array.isArray(data) && data.length > 0 ? (
                     (data.map(entry => (
-                        <tr key={entry.id} className="children:px-5 children:overflow-hidden children:text-ellipsis children:py-6 children:border-2 children:border-gray-200 children:text-center children:hover:cursor-pointer">
+                        <tr key={entry.id} className="children:px-5 children:overflow-hidden children:py-6 children:border-2 children:border-gray-200 children:text-center children:hover:cursor-pointer">
                             
-                            <td data-value={entry.record_title} onClick={(e) => {
+                            <td className="text-ellipsis" data-value={entry.record_title} onClick={(e) => {
         const valueToCopy = e.currentTarget.getAttribute("data-value");
         if (valueToCopy) {
             copy(valueToCopy);
         }
     }}>{entry.record_title}</td>
 
-                            <td data-value={entry.user_name} onClick={(e) => {
+                            <td className="text-ellipsis" data-value={entry.user_name} onClick={(e) => {
         const valueToCopy = e.currentTarget.getAttribute("data-value");
         if (valueToCopy) {
             copy(valueToCopy);
         }
     }}>{entry.user_name}</td>
 
-                            <td className="overflow-clip" data-password={decodePass(entry.password)} onClick={(e) => {
+                            <td className="text-clip" data-password={decodePass(entry.password)} onClick={(e) => {
         const valueToCopy = e.currentTarget.getAttribute("data-password");
         if (valueToCopy) {
             copy(valueToCopy);
@@ -75,14 +75,14 @@ function EntriesTable({data, showMessage}:
             {decodePass(entry.password)? "•".repeat(decodePass(entry.password).length) : null}
                             </td>
 
-                            <td data-value={entry.record_url} onClick={(e) => {
+                            <td className="text-ellipsis" data-value={entry.record_url} onClick={(e) => {
         const valueToCopy = e.currentTarget.getAttribute("data-value");
         if (valueToCopy) {
             copy(valueToCopy);
         }
     }}>{entry.record_url}</td>
 
-                            <td data-value={entry.description} onClick={(e) => {
+                            <td className="text-ellipsis" data-value={entry.description} onClick={(e) => {
         const valueToCopy = e.currentTarget.getAttribute("data-value");
         if (valueToCopy) {
             copy(valueToCopy);

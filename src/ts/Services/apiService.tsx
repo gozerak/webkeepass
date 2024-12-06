@@ -39,7 +39,7 @@ export async function fetchEntries ({userId, authToken}:{
         const json = await response.json()
         const data: EntriesData[] = json.value.passwords
         const folders: FoldersData[] = json.value.folders
-        console.log(data)
+        // console.log(data)
         return [data, folders];
     } else {
         throw new Error("Failed to fetch entries");

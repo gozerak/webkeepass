@@ -50,14 +50,13 @@ export default function MainPage({pass}: {pass:string | null}) {
     const {entries, folders, loading, refreshEntries} = useEntriesData({userId, authToken});
 
     const folderTree = buildFolderTree(folders, entries);
-
     const [chosenFolder, setChosenFolder] = useState("");
-
+// console.log(folders)
     return(
         <div className="w-full h-full">
             <Header pass ={pass}/>
             <div className="flex flex-row ">
-                <Folders folders={folderTree} chosenFolder={chosenFolder} refresh={refreshEntries} setChosenFolder={setChosenFolder} />
+                <Folders folders={folderTree} foldersForSelect={folders} chosenFolder={chosenFolder} refresh={refreshEntries} setChosenFolder={setChosenFolder} />
                 <Entries userId={userId} authToken={authToken} entries={entries} chosenFolder={chosenFolder} refreshEntriesData={refreshEntries} />
                 <AddEntry folders={folders} chosenFolder={chosenFolder} refresh={refreshEntries} />
             </div>
