@@ -55,9 +55,9 @@ export default function MainPage({pass}: {pass:string | null}) {
     return(
         <div className="w-full h-full">
             <Header pass ={pass}/>
-            <div className="flex flex-row ">
+            <div className="flex flex-row overflow-y-auto ">
                 <Folders folders={folderTree} foldersForSelect={folders} chosenFolder={chosenFolder} refresh={refreshEntries} setChosenFolder={setChosenFolder} />
-                <Entries userId={userId} authToken={authToken} entries={entries} chosenFolder={chosenFolder} refreshEntriesData={refreshEntries} />
+                <Entries userId={userId} authToken={authToken} entries={entries} chosenFolder={chosenFolder} refreshEntriesData={refreshEntries} foldersForSelect={folders} />
                 <AddEntry folders={folders} chosenFolder={chosenFolder} refresh={refreshEntries} />
             </div>
         </div>

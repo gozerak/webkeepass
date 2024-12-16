@@ -56,25 +56,25 @@ function FolderTree({
     }
 
     const handleDelete = async (folderId: string) => {
-        // const userId = sessionStorage.getItem("userId")
-        // const authToken = sessionStorage.getItem("authToken")
-        // if (userId && authToken) {
-        //     const response = await fetch (`${API_BASE_URL}/api/PasswordsRecords/DeleteFolder?folderId=${folderId}&userId=${userId}`, {
-        //         method: "DELETE",
-        //         headers:{
-        //             "Content-Type": "application/json",
-        //             "Authorization": `Bearer ${authToken}`
-        //         }
-        //     });
-        //     if (response.ok) {
-        //         console.log("Папка удалена!")
-        //         refresh(userId, authToken)
-        //         setChosenFolder('')
-        //         setIsModalOpen(false)
-        //     } else {
-        //         console.error("Не удалилась папка")
-        //     } 
-        // } ;
+        const userId = sessionStorage.getItem("userId")
+        const authToken = sessionStorage.getItem("authToken")
+        if (userId && authToken) {
+            const response = await fetch (`${API_BASE_URL}/api/PasswordsRecords/DeleteFolder?folderId=${folderId}&userId=${userId}`, {
+                method: "DELETE",
+                headers:{
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${authToken}`
+                }
+            });
+            if (response.ok) {
+                console.log("Папка удалена!")
+                refresh(userId, authToken)
+                setChosenFolder('')
+                setIsModalOpen(false)
+            } else {
+                console.error("Не удалилась папка")
+            } 
+        } ;
         
     }
 

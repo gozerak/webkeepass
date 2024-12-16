@@ -4,12 +4,13 @@ export interface EntriesData {
     id: string,
     user_id: string,
     folder_id: string,
-    record_title?: string,
-    password?: string,
-    user_name?: string,
-    description?: string,
-    record_url?: string,
-    created_date: string
+    record_title: string,
+    password: string,
+    user_name: string,
+    description: string,
+    record_url: string,
+    created_date: string,
+    password_id: string,
 }
 
 export interface FoldersData {
