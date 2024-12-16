@@ -28,7 +28,7 @@ export function AddEntryInput({title,type='text', name, value, onChange, require
     )
 }
 
-function createEncryptedPass (pass:string, userPass:string) {
+export function createEncryptedPass (pass:string, userPass:string) {
     const cipherText= CryptoJS.AES.encrypt(pass, userPass).toString();
     return cipherText;
 }
@@ -117,6 +117,7 @@ export default function AddEntry ({folders, chosenFolder, refresh}: {
                 console.error("Error:", error)
             }
         }
+        undoAddEntryData;
         setIsModalOpen(false)
 };
 
@@ -126,6 +127,18 @@ export default function AddEntry ({folders, chosenFolder, refresh}: {
 
     const checkPasswordsMatch = (pass: string, repeatPass: string) => {
          setIsPasswordsMatch(pass === repeatPass);
+    }
+
+    const undoAddEntryData = () => {
+        setAddEntryData({
+            user_id: "",
+        record_title: "",
+        password: "",
+        user_name: "",
+        description: "",
+        record_url: "",
+        folder_id: chosenFolder || rootFolder,
+        })
     }
 
     return(
