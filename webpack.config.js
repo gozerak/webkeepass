@@ -28,20 +28,23 @@ module.exports = {
     static: path.resolve(__dirname, 'public'),
     hot: true,
     open: true,
-    host: 'localhost',
+    host: '0.0.0.0',
     port: 8080,
-    server: {
-    type: "https",
-    options: {
-    cert: './serts/mail.komos-group.ru_2024.crt',
-    key: "./serts/mail.komos-group.ru_2024_unencrypted.key",
-    }},
-    allowedHosts: [
-      'dev.komos-group.ru',
-      '10.14.113.135'
-  ],
-    historyApiFallback: true, // Для работы с React Router
+    // https:false,
+    // server: {
+    // type: "https",
+    // options: {
+    // cert: './serts/mail.komos-group.ru_2024.crt',
+    // key: "./serts/mail.komos-group.ru_2024_unencrypted.key",
+    // }
   },
+  //   allowedHosts: [
+  //     'dev.komos-group.ru',
+  //     '10.14.113.135'
+  // ],
+    // allowedHosts: 'all',
+    // historyApiFallback: true, // Для работы с React Router
+  // },
   plugins: [
     new HtmlWebpackPlugin({
       template: './public/index.html', // Шаблон HTML
