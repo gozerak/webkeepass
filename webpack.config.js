@@ -28,7 +28,7 @@ module.exports = {
     static: path.resolve(__dirname, 'public'),
     hot: true,
     open: true,
-    host: '10.14.113.135',
+    host: 'localhost',
     port: 8080,
     server: {
     type: "https",
