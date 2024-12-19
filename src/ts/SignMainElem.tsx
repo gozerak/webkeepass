@@ -4,7 +4,7 @@ import SignIn from "./SignIn"
 import SignUp from "./SignUp"
 import { useNavigate } from "react-router-dom";
 
-export const API_BASE_URL = 'http://localhost:7269'
+export const API_BASE_URL = 'https://10.14.113.135:7269'
 
 async function computeSha256Hash(message:string) {
     // Преобразуем строку в ArrayBuffer

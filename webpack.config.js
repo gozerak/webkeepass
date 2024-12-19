@@ -30,7 +30,7 @@ module.exports = {
     static: path.resolve(__dirname, 'public'),
     hot: true,
     open: true,
-    host: '0.0.0.0',
+    host: '10.14.113.135',
     port: 8080,
     historyApiFallback: true,
     https: {
