@@ -17,8 +17,10 @@ COPY . .
 # Сборка приложения
 RUN npm run build && ls -la /app/dist
 
-# Используем Nginx для раздачи статических файлов
 FROM nginx:alpine
+
+# Создаем директорию для SSL-сертификатов
+RUN mkdir -p /etc/nginx/ssl
 
 # Копируем собранные файлы в директорию Nginx
 COPY --from=build /app/dist /usr/share/nginx/html
@@ -26,8 +28,8 @@ COPY --from=build /app/dist /usr/share/nginx/html
 # Копируем кастомный конфиг nginx
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-# Открываем порт
-EXPOSE 80
+# Открываем порты
+EXPOSE 80 443
 
 # Запускаем Nginx
 CMD ["nginx", "-g", "daemon off;"]

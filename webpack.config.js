@@ -1,4 +1,5 @@
 const path = require('path');
+const fs = require('fs');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
@@ -31,15 +32,13 @@ module.exports = {
     open: true,
     host: '0.0.0.0',
     port: 8080,
-    historyApiFallback: true
-    // https:false,
-    // server: {
-    // type: "https",
-    // options: {
-    // cert: './serts/mail.komos-group.ru_2024.crt',
-    // key: "./serts/mail.komos-group.ru_2024_unencrypted.key",
-    // }
-  },
+    historyApiFallback: true,
+    https: {
+        key: fs.readFileSync('./serts/mail.komos-group.ru_2024_unencrypted.key'),
+        cert: fs.readFileSync('./serts/mail.komos-group.ru_2024.crt'),
+      },
+    allowedHosts: ['dev.komos-group.ru', '10.14.113.135']
+    },
   //   allowedHosts: [
   //     'dev.komos-group.ru',
   //     '10.14.113.135'
