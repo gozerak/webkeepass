@@ -6,6 +6,7 @@ module.exports = {
   output: {
     path: path.resolve(__dirname, 'dist'),
     filename: 'bundle.js',
+    publicPath: '/'
   },
   mode: process.env.NODE_ENV || 'development', // Режим сборки
   resolve: {
@@ -30,6 +31,7 @@ module.exports = {
     open: true,
     host: '0.0.0.0',
     port: 8080,
+    historyApiFallback: true
     // https:false,
     // server: {
     // type: "https",
@@ -49,6 +51,7 @@ module.exports = {
     new HtmlWebpackPlugin({
       template: './public/index.html', // Шаблон HTML
       filename: 'index.html',
+      inject: true
     }),
   ],
 };

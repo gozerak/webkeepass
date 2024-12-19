@@ -1,23 +1,33 @@
-# Используем официальный образ Node.js в качестве базового
-FROM node:18
+# Dockerfile для React-приложения
+# Используем правильную версию Node.js
+FROM node:18 AS build
 
 # Устанавливаем рабочую директорию
 WORKDIR /app
 
-# Копируем package.json и package-lock.json (или yarn.lock) в рабочую директорию
+# Копируем package.json и package-lock.json
 COPY package*.json ./
 
 # Устанавливаем зависимости
 RUN npm install
 
-# Копируем все файлы проекта в рабочую директорию
+# Копируем исходный код приложения
 COPY . .
 
-# Сборка проекта, если необходимо (например, для React, Vue и т.д.)
-RUN npm run build
+# Сборка приложения
+RUN npm run build && ls -la /app/dist
 
-# Открываем порт, который использует приложение
-EXPOSE 8080
+# Используем Nginx для раздачи статических файлов
+FROM nginx:alpine
 
-# Команда для запуска приложения
-CMD ["npm", "start"]
+# Копируем собранные файлы в директорию Nginx
+COPY --from=build /app/dist /usr/share/nginx/html
+
+# Копируем кастомный конфиг nginx
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+# Открываем порт
+EXPOSE 80
+
+# Запускаем Nginx
+CMD ["nginx", "-g", "daemon off;"]
