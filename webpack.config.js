@@ -33,10 +33,17 @@ module.exports = {
     host: '10.14.113.135',
     port: 8080,
     historyApiFallback: true,
-    https: {
+    // https: {
+    //     key: fs.readFileSync('./serts/mail.komos-group.ru_2024_unencrypted.key'),
+    //     cert: fs.readFileSync('./serts/mail.komos-group.ru_2024.crt'),
+    //   },
+    server: {
+      type: 'https',
+      options: {
         key: fs.readFileSync('./serts/mail.komos-group.ru_2024_unencrypted.key'),
-        cert: fs.readFileSync('./serts/mail.komos-group.ru_2024.crt'),
-      },
+        cert: fs.readFileSync('./serts/mail.komos-group.ru_2024.crt')
+      }
+    },
     allowedHosts: ['dev.komos-group.ru', '10.14.113.135']
     },
   //   allowedHosts: [

@@ -32,8 +32,9 @@ export interface SignUpData {
 }
 
 interface FetchedLogInData {
-    userId: string,
-    authToken: string
+    user_id: string,
+    auth_token: string
+    message: string
 }
 
 async function sendHash(myData: LogInData | SignUpData, url:string): Promise<Boolean> {
@@ -85,10 +86,10 @@ async function postData({url, myData}: {
     });
     if (response.status === 200) {
         const data = await response.json();
-        const logInData: FetchedLogInData = data.value
+        const logInData: FetchedLogInData = data
         alert("Вы успешно вошли!")
-        sessionStorage.setItem('userId', logInData.userId);
-        sessionStorage.setItem('authToken', logInData.authToken);
+        sessionStorage.setItem('userId', logInData.user_id);
+        sessionStorage.setItem('authToken', logInData.auth_token);
         sessionStorage.setItem('userName', myData.userName);
         return data;
     } else {
