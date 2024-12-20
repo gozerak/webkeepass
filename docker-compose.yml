@@ -1,0 +1,55 @@
+services:
+  backend:
+    #image: keepassnew  # Либо путь к Dockerfile, если образ не собран
+    environment:
+      - ASPNETCORE_URLS=http://0.0.0.0:7269
+      - ConnectionStrings__DefaultConnection=Server=db;Database=webKeePassDB;Trusted_Connection=false;User=UserName;Password=;
+    build:
+      context: ./KeePassAPI  # Путь к вашему ASP.NET проекту
+      dockerfile: Dockerfile
+    ports:
+      - "10.14.113.135:7269:7269"  # Проброс порта для доступа к ASP.NET Core приложению
+    networks:
+      - app-network
+    depends_on:
+      - db  # Ждем, пока база данных будет готова
+
+  frontend:
+    build:
+      context: ./webkeepass # Путь к вашему React проекту
+      dockerfile: Dockerfile
+    ports:
+      - "10.14.113.135:443:443"
+      - "10.14.113.135:80:80"
+    volumes:
+      - ./webkeepass/serts/mail.komos-group.ru_2024.crt:/etc/nginx/ssl/cert.crt
+      - ./webkeepass/serts/mail.komos-group.ru_2024_unencrypted.key:/etc/nginx/ssl/cert.key
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+    networks:
+      - app-network
+    depends_on:
+      - backend
+    hostname: 10.14.113.135
+
+  db:
+    image: postgres:15-alpine  # Используем последний образ SQL Server
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=NewStrongPassword123!
+      - POSTGRES_DB=webKeePassDB
+    ports:
+      - "5432:5432"  # Проброс порта для доступа к SQL Server
+    networks:
+      - app-network
+    volumes:
+      - sqlserver-data:/var/opt/mssql  # Сохранение данных в volume
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  sqlserver-data:

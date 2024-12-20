@@ -4,7 +4,7 @@ import SignIn from "./SignIn"
 import SignUp from "./SignUp"
 import { useNavigate } from "react-router-dom";
 
-export const API_BASE_URL = 'https://10.14.113.107:7269'
+export const API_BASE_URL = 'https://10.14.113.135:7269'
 
 async function computeSha256Hash(message:string) {
     // Преобразуем строку в ArrayBuffer
@@ -32,8 +32,9 @@ export interface SignUpData {
 }
 
 interface FetchedLogInData {
-    userId: string,
-    authToken: string
+    user_id: string,
+    auth_token: string
+    message: string
 }
 
 async function sendHash(myData: LogInData | SignUpData, url:string): Promise<Boolean> {
@@ -85,10 +86,10 @@ async function postData({url, myData}: {
     });
     if (response.status === 200) {
         const data = await response.json();
-        const logInData: FetchedLogInData = data.value
+        const logInData: FetchedLogInData = data
         alert("Вы успешно вошли!")
-        sessionStorage.setItem('userId', logInData.userId);
-        sessionStorage.setItem('authToken', logInData.authToken);
+        sessionStorage.setItem('userId', logInData.user_id);
+        sessionStorage.setItem('authToken', logInData.auth_token);
         sessionStorage.setItem('userName', myData.userName);
         return data;
     } else {

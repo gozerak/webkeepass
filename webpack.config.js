@@ -1,4 +1,5 @@
 const path = require('path');
+const fs = require('fs');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
@@ -6,6 +7,7 @@ module.exports = {
   output: {
     path: path.resolve(__dirname, 'dist'),
     filename: 'bundle.js',
+    publicPath: '/'
   },
   mode: process.env.NODE_ENV || 'development', // Режим сборки
   resolve: {
@@ -28,24 +30,34 @@ module.exports = {
     static: path.resolve(__dirname, 'public'),
     hot: true,
     open: true,
-    host: 'localhost',
+    host: '10.14.113.135',
     port: 8080,
+    historyApiFallback: true,
+    // https: {
+    //     key: fs.readFileSync('./serts/mail.komos-group.ru_2024_unencrypted.key'),
+    //     cert: fs.readFileSync('./serts/mail.komos-group.ru_2024.crt'),
+    //   },
     server: {
-    type: "https",
-    options: {
-    cert: './serts/mail.komos-group.ru_2024.crt',
-    key: "./serts/mail.komos-group.ru_2024_unencrypted.key",
-    }},
-    allowedHosts: [
-      'dev.komos-group.ru',
-      '10.14.113.135'
-  ],
-    historyApiFallback: true, // Для работы с React Router
-  },
+      type: 'https',
+      options: {
+        key: fs.readFileSync('./serts/mail.komos-group.ru_2024_unencrypted.key'),
+        cert: fs.readFileSync('./serts/mail.komos-group.ru_2024.crt')
+      }
+    },
+    allowedHosts: ['dev.komos-group.ru', '10.14.113.135']
+    },
+  //   allowedHosts: [
+  //     'dev.komos-group.ru',
+  //     '10.14.113.135'
+  // ],
+    // allowedHosts: 'all',
+    // historyApiFallback: true, // Для работы с React Router
+  // },
   plugins: [
     new HtmlWebpackPlugin({
       template: './public/index.html', // Шаблон HTML
       filename: 'index.html',
+      inject: true
     }),
   ],
 };
