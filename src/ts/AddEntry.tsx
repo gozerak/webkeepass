@@ -143,7 +143,7 @@ export default function AddEntry ({folders, chosenFolder, refresh}: {
 
     return(
         <>
-        <div className="">
+        <div className="absolute">
         <Modal width="1/3" isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
             <form onSubmit={handleSubmit} className="flex flex-col p-2">
                 <AddEntryInput
@@ -225,7 +225,7 @@ export default function AddEntry ({folders, chosenFolder, refresh}: {
             </form>
         </Modal>
         </div>
-        <div className="align-middle h-14 mt-5 mr-16 min-w-12 max-w-fit">
+        <div className=" relative align-middle h-14 mt-2 mb-5 mr-16 min-w-12 max-w-fit">
         <button className="border-2 border-gray-300 bg-green-500 w-fit p-2 align-middle text-nowrap text-white" onClick={handleClick}>Добавить запись</button>
         </div>
         </>

@@ -226,7 +226,7 @@ export default function Folders ({
     }
 
     return (
-        <div className="w-1/3 mt-5 pl-5">
+        <div className="w-1/4 mt-5 pl-5">
             
             {<Modal width="1/3" isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
                 <div className="bg-white w-100 h-fit flex flex-col items-center">
