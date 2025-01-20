@@ -85,9 +85,11 @@ function FolderTree({
             <ul>
                 {folders.map(folder => (
                     <li key={folder.folder_id}>
+                        <div className="flex flex-row">
+                            <img className="w-4 h-6 mr-2" src="/img/folder.svg" />
                         <div onClick={(e) => handleFolder(folder)} className={`group flex flex-row items-center hover:cursor-pointer select-none mb-2`}>
                             <span className={`${folder.folder_id === chosenFolder || (chosenFolder === "" && folder.primaryFolder_id === null)
-                                ? "bg-blue-300"
+                                ? "bg-gray-300"
                                 : "bg-white"} font-semibold text-nowrap`} >{folder.folder_name}</span>
                             {folder.children.length > 0 && (
                                 <button 
@@ -109,6 +111,7 @@ function FolderTree({
                             </button> 
                             : null
                             }
+                        </div>
                         </div>
                         
                         {folder.entries.length > 0 && (
@@ -205,6 +208,7 @@ export default function Folders ({
         });
         if (response.ok) {
             console.log('Папка создалась!');
+            setAddFolderData({...addFolderData, folder_name: ""})
             refresh(userId, authToken)
         } else {
             console.error("Ошибка создания папки")

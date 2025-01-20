@@ -3,6 +3,7 @@ import { useState } from "react"
 import SignIn from "./SignIn"
 import SignUp from "./SignUp"
 import { useNavigate } from "react-router-dom";
+import { useMessage } from "./hooks/useMessage";
 
 export const API_BASE_URL = 'https://10.1.6.30:7269'
 
@@ -56,20 +57,23 @@ interface FetchedLogInData {
     message: string
 }
 
-async function sendHash(myData: LogInData | SignUpData, url:string): Promise<Boolean> {
+async function sendHash(myData: LogInData | SignUpData,
+     url:string,
+     showMessage: (text: string, isError?: boolean) => void): Promise<Boolean> {
     try {
             const data = await postData({
                 url,
-                myData: myData
+                myData: myData,
+                showMessage
             });
 
             if (data) {
                 return true;
             } else {
-                console.error ("Что-то пошло не так при попытке авторизоваться")
+                showMessage ("Неправильный логин или пароль", true)
             }
     } catch (err) {
-        console.error("Ошибка при попытке авторизации", err);
+        showMessage("Ошибка при попытке авторизации", true);
     }
     return false;
 }
@@ -78,9 +82,10 @@ function isLogInData (object: any): object is LogInData {
     return 'userName' in object;
 }
 
-async function postData({url, myData}: {
+async function postData({url, myData, showMessage}: {
     url: string,
     myData: LogInData | SignUpData,
+    showMessage: (text: string, isError?: boolean) => void;
 }) {
     if (!isLogInData(myData)) {
     const response = await fetch(url, {
@@ -92,10 +97,10 @@ async function postData({url, myData}: {
         body: JSON.stringify(myData)
     });
     if (response.status === 200) {
-        alert("Вы успешно зарегистрировались!")
+        showMessage("Вы успешно зарегистрировались!", false)
     }
     else {
-        alert("Что-то пошло не так")
+        showMessage("Что-то пошло не так", true)
         return;
     }
     return response.json();
@@ -106,19 +111,18 @@ async function postData({url, myData}: {
     if (response.status === 200) {
         const data = await response.json();
         const logInData: FetchedLogInData = data
-        alert("Вы успешно вошли!")
         sessionStorage.setItem('userId', logInData.user_id);
         sessionStorage.setItem('authToken', logInData.auth_token);
         sessionStorage.setItem('userName', myData.userName);
         return data;
     } else {
-        alert("Что-то пошло не так")
+        showMessage("Что-то пошло не так", true)
         return;
     }
 }
 }
 
-export function LogPassInputs({isSignIn}: {isSignIn: boolean}) {
+export function LogPassInputs({isSignIn, showMessage}: {isSignIn: boolean, showMessage: (text: string, isError?: boolean) => void}) {
     const [loginData, setLoginData] = useState({
         login: "",
         password: ""
@@ -135,7 +139,7 @@ export function LogPassInputs({isSignIn}: {isSignIn: boolean}) {
         }
         const url = `${API_BASE_URL}/api/User/GetUser`;
 
-        const isSuccess = await sendHash(userData, url)
+        const isSuccess = await sendHash(userData, url, showMessage)
         console.log(passwordHash)
         if (isSuccess) {
             sessionStorage.setItem('pass', forBrowserHash)
@@ -153,7 +157,7 @@ export function LogPassInputs({isSignIn}: {isSignIn: boolean}) {
 
         const url = `${API_BASE_URL}/api/User/CreateUser`  
         
-        sendHash(signUpData, url)
+        sendHash(signUpData, url, showMessage)
 
     }
     
@@ -190,14 +194,24 @@ export function LogPassInputs({isSignIn}: {isSignIn: boolean}) {
 }
 
 export default function SignMainElem() {
-    const [isSignIn, setIsSignIn] = useState(true)
+    const [isSignIn, setIsSignIn] = useState(true);
+    const { message, showMessage } = useMessage();
     return(
         <div className="flex flex-col items-center mt-32 min-w-16">
             <div className="flex justify-center  w-1/5 flex-row h-min mt-5 items-center">
                 <div className="flex justify-center items-center w-1/3 p-1 border-r-0  h-min border-2 hover:cursor-pointer" onClick={!isSignIn? ()=> setIsSignIn(true): undefined}>Войти</div>
                 <div className="flex justify-center items-center w-2/3 p-1 h-min border-2 hover:cursor-pointer" onClick={isSignIn? ()=> setIsSignIn(false): undefined}>Зарегистрироваться</div>
             </div>
-                {isSignIn? <SignIn isSignIn={true} />: <SignUp isSignIn={false} />}
+                {isSignIn? <SignIn isSignIn={true} showMessage={showMessage} />: <SignUp isSignIn={false} showMessage={showMessage} />}
+                {message && (
+                <div
+                    className={`fixed bottom-5 left-1/2 transform -translate-x-1/2 h-fit w-fit px-4 py-2 text-white text-center rounded-md ${
+                        message.isError ? "bg-red-600" : "bg-green-600"
+                    }`}
+                >
+                    {message.text}
+                </div>
+            )}
         </div>
     )
 }
