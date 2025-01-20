@@ -1,10 +1,12 @@
-import React, { useMemo } from "react";
+import React, { ChangeEvent, useMemo } from "react";
 import { useState } from "react";
 import { EntriesData, FoldersData } from './Services/apiService';
 import CryptoJS from "crypto-js";
 import Modal from "./Modal";
 import { AddEntryInput, createEncryptedPass } from "./AddEntry";
 import { API_BASE_URL } from "./SignMainElem";
+import { useMessage } from "./hooks/useMessage";
+
 
 function decodePass(pass:string | undefined){
     const userPass = sessionStorage.getItem('pass')
@@ -22,6 +24,49 @@ function copy (text: string) {
     }).catch((err) => {
         console.error("Ошибка при копировании:", err);
     });
+}
+
+function AddEntryPassword({title, name, value, onChange, required }: {
+    title: string,
+    name: string,
+    value: string,
+    onChange: (e: ChangeEvent<HTMLInputElement>) => void,
+    required?: boolean 
+}) {
+    const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+
+    // Функция для переключения видимости пароля
+    const togglePasswordVisibility = () => {
+        setIsPasswordVisible(prevState => !prevState);
+    };
+
+    return (
+        <div className="flex flex-col relative">
+            <p className="text-lg pb-3 select-none">{title}</p>
+            <div className="flex flex-row">
+            <input
+                className="border-2 w-4/5 border-gray-300 outline-none pl-1 pr-10"
+                autoComplete="off"
+                type={isPasswordVisible ? 'text' : 'password'}
+                name={name}
+                value={value}
+                onChange={onChange}
+                required={required}
+            />
+            <button
+                type="button"
+                onClick={togglePasswordVisibility}
+                className="relative mt-4 right-6 transform -translate-y-1/2 text-gray-500"
+            >
+                {isPasswordVisible ? (
+                 <img className="w-4 h-4" src='/img/eye-slash-solid.svg'/>  
+                ) : (
+                <img className="w-4 h-4" src="/img/eye-solid.svg" />
+                )}
+            </button>
+            </div>
+        </div>
+    );
 }
 
 function EntriesTable({data, showMessage, chosenFolder, foldersForSelect, refresh}: 
@@ -51,6 +96,13 @@ function EntriesTable({data, showMessage, chosenFolder, foldersForSelect, refres
     const [isPasswordsMatch, setIsPasswordsMatch] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false)
     const rootFolder = foldersForSelect.find(folder => folder.primaryFolder_id === null)?.folder_id || "";
+
+    const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+
+    // Функция для переключения видимости пароля
+    const togglePasswordVisibility = () => {
+        setIsPasswordVisible(prevState => !prevState);
+    };
 
     const copy = (text: string) => {
         navigator.clipboard.writeText(text).then(() => {
@@ -153,9 +205,6 @@ function EntriesTable({data, showMessage, chosenFolder, foldersForSelect, refres
     const handleRepeatPasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { value } = e.target;
         setAgainPassword(value);
-
-        // Проверить совпадение паролей
-        setIsPasswordsMatch(value === entryData.password);
     };
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -212,21 +261,46 @@ function EntriesTable({data, showMessage, chosenFolder, foldersForSelect, refres
                 onChange={handleChange}
                 />
 
-                <AddEntryInput
-                type="password"
-                title="Пароль"
+        <div className="flex flex-col relative">
+            <p className="text-lg pb-3 select-none">Пароль</p>
+            <div className="flex flex-row">
+            <input
+                className="border-2 w-4/5 border-gray-300 outline-none pl-1 pr-10"
+                autoComplete="off"
+                type={isPasswordVisible ? 'text' : 'password'}
                 name="password"
                 value={entryData.password}
                 onChange={handlePasswordChange}
-                />
+                required
+            />
+            <button
+                type="button"
+                onClick={togglePasswordVisibility}
+                className="relative mt-4 right-6 transform -translate-y-1/2 text-gray-500"
+            >
+                {isPasswordVisible ? (
+                 <img className="w-4 h-4" src='/img/eye-slash-solid.svg'/>  
+                ) : (
+                <img className="w-4 h-4" src="/img/eye-solid.svg" />
+                )}
+            </button>
+            </div>
+        </div>
 
-                <AddEntryInput
-                type="password"
-                title="Пароль еще раз"
+        <div className="flex flex-col relative">
+            <p className="text-lg pb-3 select-none">Пароль еще раз</p>
+            <input
+                className="border-2 w-4/5 border-gray-300 outline-none pl-1 pr-10 disabled:border-gray-200"
+                autoComplete="off"
+                type='password'
                 name="againPassword"
                 value={againPassword}
                 onChange={handleRepeatPasswordChange}
-                />
+                required={isPasswordVisible}
+                disabled={isPasswordVisible}
+            />
+        </div>
+
 
                 <AddEntryInput
                 title="URL"
@@ -268,7 +342,7 @@ function EntriesTable({data, showMessage, chosenFolder, foldersForSelect, refres
                     </button>
                     <button type="submit"
                     className="border-2 w-28 h-10 bg-green-600 text-white rounded-md disabled:bg-green-400 disabled:hover:cursor-not-allowed" 
-                    disabled={!isPasswordsMatch}>
+                    disabled={isPasswordVisible? false: !isPasswordsMatch}>
                         Сохранить
                     </button> 
                 </div>
@@ -350,12 +424,7 @@ export default function Entries({userId, authToken, entries, chosenFolder, refre
     refreshEntriesData: (userId: string | null, authToken: string | null) => void;
     foldersForSelect: FoldersData[];
 }) {
-    // const {entries, loading, refreshEntries} = useEntriesData({userId, authToken});
-    const [message, setMessage] = useState<{text: string, isError: boolean} | null>(null);
-    const showMessage = (text: string, isError = false) => {
-        setMessage({ text, isError });
-        setTimeout(() => setMessage(null), 2000);
-    }
+    const { message, showMessage } = useMessage();
 
     const filteredEntries = useMemo(() => {
         if(!chosenFolder) {
