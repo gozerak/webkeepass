@@ -7,12 +7,10 @@ import { AddEntryInput, createEncryptedPass } from "./AddEntry";
 import { API_BASE_URL } from "./SignMainElem";
 
 function decodePass(pass:string | undefined){
-    console.log(pass)
     const userPass = sessionStorage.getItem('pass')
     if (userPass && pass) {
         const bytes = CryptoJS.AES.decrypt(pass, userPass);
         const decryptedText = bytes.toString(CryptoJS.enc.Utf8);
-        console.log(decryptedText)
         return decryptedText;
     }
     return null
@@ -168,6 +166,32 @@ function EntriesTable({data, showMessage, chosenFolder, foldersForSelect, refres
          setIsPasswordsMatch(pass === repeatPass);
     }
 
+    const handleDeleteEntry = async (recordId: string) => {
+        const authToken = sessionStorage.getItem('authToken')
+
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/PasswordsRecords/DeletePasswordRecord?recordId=${recordId}&userId=${userId}`, {
+                method: "DELETE",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${authToken}`
+                },
+            });
+            if (response.ok) {
+                console.log('Запись удалена!')
+                showMessage('Запись удалена!', false)
+                //логика для AJAX обновления страницы
+                refresh(userId, authToken)
+            } else {
+                console.error('Все пошло по пизде')
+                showMessage('Ошибка при удалении записи', true)
+            }
+        } catch (error) {
+            console.error("Error:", error)
+        }
+        setIsModalOpen(false)
+    }
+
     return(
         <>
             {<Modal width="1/2" isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
@@ -239,8 +263,8 @@ function EntriesTable({data, showMessage, chosenFolder, foldersForSelect, refres
                 <div className="flex flex-row justify-around mt-5">
                     <button type="button"
                     className="border-2 w-28 h-10 bg-red-600 text-white rounded-md"
-                    onClick={() => setIsModalOpen(false)}>
-                        Назад
+                    onClick={() => handleDeleteEntry(entryData.password_id)}>
+                        Удалить
                     </button>
                     <button type="submit"
                     className="border-2 w-28 h-10 bg-green-600 text-white rounded-md disabled:bg-green-400 disabled:hover:cursor-not-allowed" 
@@ -304,7 +328,6 @@ function EntriesTable({data, showMessage, chosenFolder, foldersForSelect, refres
                 copy(valueToCopy);
             }
         }}>{entry.description}</td>
-
                             </tr>
                         )))
                     ) : (

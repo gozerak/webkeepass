@@ -54,11 +54,10 @@ export default function MainPage({pass}: {pass:string | null}) {
 // console.log(folders)
     return(
         <div className="w-full h-full">
-            <Header pass ={pass}/>
+            <Header pass ={pass} folders={folders} chosenFolder={chosenFolder} refresh={refreshEntries}/>
             <div className="flex flex-row overflow-y-auto ">
                 <Folders folders={folderTree} foldersForSelect={folders} chosenFolder={chosenFolder} refresh={refreshEntries} setChosenFolder={setChosenFolder} />
                 <Entries userId={userId} authToken={authToken} entries={entries} chosenFolder={chosenFolder} refreshEntriesData={refreshEntries} foldersForSelect={folders} />
-                <AddEntry folders={folders} chosenFolder={chosenFolder} refresh={refreshEntries} />
             </div>
         </div>
     )

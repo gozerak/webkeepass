@@ -1,5 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
+import AddEntry from "./AddEntry";
+import { FoldersData } from "./Services/apiService";
 
 function HeaderName() {
     return(
@@ -57,7 +59,11 @@ function HeaderLogOut({userName} : {userName: string}) {
         );
     }
 
-export default function Header({pass}: {pass?:string | null}) {
+export default function Header({pass, folders, chosenFolder, refresh}: {
+    pass?:string | null,
+    folders: FoldersData[],
+    chosenFolder: string,
+    refresh: (userId: string | null, authToken: string | null) => void;}) {
     const [userName, setUserName] = useState('')
     useEffect(() => {
         const name = sessionStorage.getItem('userName');
@@ -65,9 +71,12 @@ export default function Header({pass}: {pass?:string | null}) {
             setUserName(name);
         };
     }, []);
+
+    const isAuthPage = location.pathname === "/auth"
     return(
         <div className="border-b-2 solid black h-14 flex flex-row justify-between relative">
             <HeaderName/>
+            {isAuthPage? null : <AddEntry folders={folders} chosenFolder={chosenFolder} refresh={refresh} />}
             {userName && <HeaderLogOut userName={userName}/>}
         </div>
     )
