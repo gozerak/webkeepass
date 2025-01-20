@@ -37,9 +37,9 @@ export async function fetchEntries ({userId, authToken}:{
         }
     });
     if (response.ok) {
-        const json = await response.json()
-        const data: EntriesData[] = json.value.passwords
-        const folders: FoldersData[] = json.value.folders
+        const responseData = await response.json()
+        const data: EntriesData[] = responseData.passwords
+        const folders: FoldersData[] = responseData.folders
         // console.log(data)
         return [data, folders];
     } else {

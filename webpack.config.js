@@ -30,7 +30,7 @@ module.exports = {
     static: path.resolve(__dirname, 'public'),
     hot: true,
     open: true,
-    host: '10.14.113.135',
+    host: '10.1.6.30',
     port: 8080,
     historyApiFallback: true,
     // https: {
@@ -44,7 +44,7 @@ module.exports = {
         cert: fs.readFileSync('./serts/mail.komos-group.ru_2024.crt')
       }
     },
-    allowedHosts: ['dev.komos-group.ru', '10.14.113.135']
+    allowedHosts: ['dev.komos-group.ru', '10.1.6.30']
     },
   //   allowedHosts: [
   //     'dev.komos-group.ru',
