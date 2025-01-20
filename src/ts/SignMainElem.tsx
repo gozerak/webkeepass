@@ -4,7 +4,7 @@ import SignIn from "./SignIn"
 import SignUp from "./SignUp"
 import { useNavigate } from "react-router-dom";
 
-export const API_BASE_URL = 'https://10.14.113.135:7269'
+export const API_BASE_URL = 'https://10.1.6.30:7269'
 
 async function computeSha256Hash(message:string) {
     // Преобразуем строку в ArrayBuffer
@@ -18,6 +18,25 @@ async function computeSha256Hash(message:string) {
     const hashArray = Array.from(new Uint8Array(hashBuffer));
     const hashHex = hashArray.map(byte => byte.toString(16).padStart(2, '0')).join('');
 
+    return hashHex;
+}
+
+async function computeHmacSha256(message: string, secretKey: string) {
+    const encoder = new TextEncoder();
+    const messageData = encoder.encode(message);
+    const keyData = encoder.encode(secretKey);
+    
+    const cryptoKey = await crypto.subtle.importKey(
+        'raw', 
+        keyData, 
+        { name: 'HMAC', hash: { name: 'SHA-256' } }, 
+        false, 
+        ['sign', 'verify']
+    );
+
+    const hashBuffer = await crypto.subtle.sign('HMAC', cryptoKey, messageData);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    const hashHex = hashArray.map(byte => byte.toString(16).padStart(2, '0')).join('');
     return hashHex;
 }
 
@@ -41,7 +60,7 @@ async function sendHash(myData: LogInData | SignUpData, url:string): Promise<Boo
     try {
             const data = await postData({
                 url,
-                myData: myData,
+                myData: myData
             });
 
             if (data) {
@@ -108,6 +127,8 @@ export function LogPassInputs({isSignIn}: {isSignIn: boolean}) {
 
     async function handleLogIn() {
         const passwordHash = await computeSha256Hash(loginData.password);
+        const forBrowserHash = await computeHmacSha256 (loginData.password, 'zxcArtemdolboebzxc');
+
         const userData = {
             userName: loginData.login,
             userPasswordHash: passwordHash
@@ -115,9 +136,9 @@ export function LogPassInputs({isSignIn}: {isSignIn: boolean}) {
         const url = `${API_BASE_URL}/api/User/GetUser`;
 
         const isSuccess = await sendHash(userData, url)
-
+        console.log(passwordHash)
         if (isSuccess) {
-            sessionStorage.setItem('pass', passwordHash)
+            sessionStorage.setItem('pass', forBrowserHash)
             navigate("/");
         }
 

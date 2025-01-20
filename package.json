@@ -21,7 +21,7 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start": "webpack serve --mode development --host 10.14.113.135",
+    "start": "webpack serve --mode development --host 0.0.0.0",
     "build": "webpack --mode production"
   },
   "eslintConfig": {

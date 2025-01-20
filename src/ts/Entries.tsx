@@ -94,6 +94,7 @@ function EntriesTable({data, showMessage, chosenFolder, foldersForSelect, refres
                 ...entryData,
                 password: cipherPass,
             }
+            console.log(updatedEntryData)
             try {
                 const response = await fetch(`${API_BASE_URL}/api/PasswordsRecords/ChangePasswordRecord?userId=${userId}&oldPasswordRecordId=${entryData.password_id}`, {
                     method: "PUT",
