@@ -129,7 +129,8 @@ export function LogPassInputs({isSignIn, showMessage}: {isSignIn: boolean, showM
     })
     const navigate = useNavigate();
 
-    async function handleLogIn() {
+    async function handleLogIn(e: React.FormEvent<HTMLFormElement>) {
+        e.preventDefault();
         const passwordHash = await computeSha256Hash(loginData.password);
         const forBrowserHash = await computeHmacSha256 (loginData.password, 'zxcArtemdolboebzxc');
 
@@ -148,7 +149,8 @@ export function LogPassInputs({isSignIn, showMessage}: {isSignIn: boolean, showM
 
     }
 
-    async function handleSignUp() {
+    async function handleSignUp(e: React.FormEvent<HTMLFormElement>) {
+        e.preventDefault();
         const passwordHash = await computeSha256Hash(loginData.password);
 
         const signUpData = {
@@ -160,15 +162,27 @@ export function LogPassInputs({isSignIn, showMessage}: {isSignIn: boolean, showM
         sendHash(signUpData, url, showMessage)
 
     }
+
+
     
 
     return(
-        <div className="border-2 w-1/5 h-auto flex flex-col justify-center items-center p-5 mt-0 border-t-0 ">
+        <form className="border-2 w-1/5 h-auto flex flex-col justify-center items-center p-5 mt-0 border-t-0 "
+        onSubmit={(e) => {
+            e.preventDefault(); // Предотвращаем стандартное поведение
+            if (isSignIn) {
+              handleLogIn(e);
+            } else {
+              handleSignUp(e);
+            }
+          }}
+          >
             <div className="flex flex-col mb-4">
                 <label htmlFor="login" className="mb-2">Логин</label>
                 <input 
                 id='login' 
                 value={loginData.login} 
+                maxLength={50}
                 className="border-2 border-gray-500 p-2" 
                 type="text" 
                 placeholder="Логин"
@@ -179,17 +193,20 @@ export function LogPassInputs({isSignIn, showMessage}: {isSignIn: boolean, showM
                 <label htmlFor='password' className="mb-2">Пароль</label>
                 <input id="password" 
                 value={loginData.password} 
+                maxLength={50}
                 className="border-2 border-gray-500 p-2" 
                 type="password" 
                 placeholder="Пароль"
                 onChange={(e) => setLoginData({...loginData, password: e.target.value})}
                 />
             </div>
-            {isSignIn?
-            <button className="border-2 border-black border-opacity-35 rounded-full bg-blue-800 text-white px-16 py-2" onClick={handleLogIn}>Войти</button>:
-            <button className="border-2 border-black border-opacity-35 rounded-full bg-blue-800 text-white px-4 py-2" onClick={handleSignUp}>Зарегистрироваться</button>   
-        }
-            </div>
+            <button
+                type="submit"
+                className="border-2 border-black border-opacity-35 rounded-full bg-blue-800 text-white px-16 py-2"
+                >
+    {isSignIn ? "Войти" : "Зарегистрироваться"}
+  </button>
+            </form>
     )
 }
 
@@ -205,7 +222,7 @@ export default function SignMainElem() {
                 {isSignIn? <SignIn isSignIn={true} showMessage={showMessage} />: <SignUp isSignIn={false} showMessage={showMessage} />}
                 {message && (
                 <div
-                    className={`fixed bottom-5 left-1/2 transform -translate-x-1/2 h-fit w-fit px-4 py-2 text-white text-center rounded-md ${
+                    className={`fixed bottom-5 left-1/2 transform -translate-x-1/2 h-fit w-1/4 px-4 py-2 text-white text-center rounded-md ${
                         message.isError ? "bg-red-600" : "bg-green-600"
                     }`}
                 >

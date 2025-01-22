@@ -1,6 +1,8 @@
 const path = require('path');
 const fs = require('fs');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 
 module.exports = {
   entry: './src/index.tsx', // Входная точка
@@ -54,10 +56,16 @@ module.exports = {
     // historyApiFallback: true, // Для работы с React Router
   // },
   plugins: [
+    new CleanWebpackPlugin(),
     new HtmlWebpackPlugin({
       template: './public/index.html', // Шаблон HTML
       filename: 'index.html',
       inject: true
+    }),
+    new CopyWebpackPlugin({
+      patterns: [
+        { from: 'public', to: '.',  filter: (resourcePath) => !resourcePath.endsWith('index.html') }, // Копирует содержимое public в dist
+      ],
     }),
   ],
 };

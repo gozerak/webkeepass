@@ -51,6 +51,7 @@ function AddEntryPassword({title, name, value, onChange, required }: {
                 name={name}
                 value={value}
                 onChange={onChange}
+                maxLength={100}
                 required={required}
             />
             <button
@@ -267,6 +268,7 @@ function EntriesTable({data, showMessage, chosenFolder, foldersForSelect, refres
             <input
                 className="border-2 w-4/5 border-gray-300 outline-none pl-1 pr-10"
                 autoComplete="off"
+                maxLength={100}
                 type={isPasswordVisible ? 'text' : 'password'}
                 name="password"
                 value={entryData.password}
@@ -292,6 +294,7 @@ function EntriesTable({data, showMessage, chosenFolder, foldersForSelect, refres
             <input
                 className="border-2 w-4/5 border-gray-300 outline-none pl-1 pr-10 disabled:border-gray-200"
                 autoComplete="off"
+                maxLength={100}
                 type='password'
                 name="againPassword"
                 value={againPassword}

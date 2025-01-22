@@ -18,6 +18,7 @@ export function AddEntryInput({title,type='text', name, value, onChange, require
             <input
             className="border-2 w-4/5 border-gray-300 outline-none pl-1"
             autoComplete="off"
+            maxLength={100}
             type={type}
             name={name}
             value={value}
@@ -203,6 +204,7 @@ export default function AddEntry ({folders, chosenFolder, refresh}: {
                 <textarea
                 rows={5}
                 cols={50}
+                maxLength={500}
                 className="border-2 w-4/5 border-gray-300 outline-none pl-1"
                 autoComplete="off"
                 name="description"
