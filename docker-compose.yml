@@ -20,7 +20,7 @@ services:
       dockerfile: Dockerfile
     ports:
       - "10.14.113.135:443:443"
-      - "10.14.113.135:80:80"
+      - "10.14.113.135:8080:8080"
     volumes:
       - ./webkeepass/serts/mail.komos-group.ru_2024.crt:/etc/nginx/ssl/cert.crt
       - ./webkeepass/serts/mail.komos-group.ru_2024_unencrypted.key:/etc/nginx/ssl/cert.key
