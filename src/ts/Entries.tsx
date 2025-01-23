@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useMemo } from "react";
+import React, { ChangeEvent, useMemo, useRef } from "react";
 import { useState } from "react";
 import { EntriesData, FoldersData } from './Services/apiService';
 import CryptoJS from "crypto-js";
@@ -100,6 +100,9 @@ function EntriesTable({data, showMessage, chosenFolder, foldersForSelect, refres
 
     const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 
+    const [clickTimeout, setClickTimeout] = useState<NodeJS.Timeout | null>(null); // Для отмены одиночного клика
+    const isDoubleClickRef = useRef(false);
+
     // Функция для переключения видимости пароля
     const togglePasswordVisibility = () => {
         setIsPasswordVisible(prevState => !prevState);
@@ -172,14 +175,35 @@ function EntriesTable({data, showMessage, chosenFolder, foldersForSelect, refres
         setIsModalOpen(false);
     }
 
-    // const handleClick = () => {
-    //     setIsModalOpen(true)
+    const handleClick = (e: React.MouseEvent<HTMLTableCellElement, MouseEvent>, valueToCopy: string | null) => {
+        // Если двойной клик произошёл, отменяем копирование
+        if (isDoubleClickRef.current) {
+            isDoubleClickRef.current = false; // Сбрасываем флаг
+            return;
+        }
+        // Устанавливаем таймер для обработки одиночного клика
+        const timeout = setTimeout(() => {
+            if (valueToCopy) {
+                copy(valueToCopy);
+            }
+        }, 200); // Задержка для определения, был ли это одиночный клик
 
-    //     setEntryData(prevData => ({
-    //         ...prevData,
-    //         folder_id: chosenFolder || rootFolder,
-    //     }));
-    // }
+        setClickTimeout(timeout);
+    };
+
+    const handleDoubleClick = (entry: any) => {
+        // Если двойной клик произошёл, отменяем таймер одиночного клика
+        if (clickTimeout) {
+            clearTimeout(clickTimeout);
+            setClickTimeout(null);
+        }
+
+        // Устанавливаем флаг, чтобы копирование не выполнялось
+        isDoubleClickRef.current = true;
+
+        // Логика открытия модального окна
+        handleEdit(entry);
+    };
 
     const handleEdit = (entry: EntriesData) => {
         console.log(entry)
@@ -198,14 +222,14 @@ function EntriesTable({data, showMessage, chosenFolder, foldersForSelect, refres
         setEntryData((prevData) => ({ ...prevData, [name]: value }));
 
         // Проверить совпадение паролей
-        if (name === 'password') {
             setIsPasswordsMatch(value === againPassword);
-        }
     };
 
     const handleRepeatPasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { value } = e.target;
         setAgainPassword(value);
+
+        setIsPasswordsMatch(value === entryData.password);
     };
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -366,27 +390,27 @@ function EntriesTable({data, showMessage, chosenFolder, foldersForSelect, refres
                         (data.map(entry => (
                             <tr key={entry.id} 
                             className="children:px-5 children:overflow-hidden children:py-6 children:border-2 children:border-gray-200 children:text-center children:hover:cursor-pointer"
-                            onDoubleClick={() => handleEdit(entry)}
+                            onDoubleClick={() => handleDoubleClick(entry)}
                             >
                                 
                                 <td className="text-ellipsis" data-value={entry.record_title} onClick={(e) => {
             const valueToCopy = e.currentTarget.getAttribute("data-value");
             if (valueToCopy) {
-                copy(valueToCopy);
+                handleClick(e, e.currentTarget.getAttribute("data-value"))
             }
         }}>{entry.record_title}</td>
 
                                 <td className="text-ellipsis" data-value={entry.user_name} onClick={(e) => {
             const valueToCopy = e.currentTarget.getAttribute("data-value");
             if (valueToCopy) {
-                copy(valueToCopy);
+                handleClick(e, e.currentTarget.getAttribute("data-value"))
             }
         }}>{entry.user_name}</td>
 
                                 <td className="text-clip" data-password={decodePass(entry.password)} onClick={(e) => {
             const valueToCopy = e.currentTarget.getAttribute("data-password");
             if (valueToCopy) {
-                copy(valueToCopy);
+                handleClick(e, e.currentTarget.getAttribute("data-value"))
             }
         }}>
                 {decodePass(entry.password)? "•".repeat(decodePass(entry.password).length) : null}
@@ -395,14 +419,14 @@ function EntriesTable({data, showMessage, chosenFolder, foldersForSelect, refres
                                 <td className="text-ellipsis" data-value={entry.record_url} onClick={(e) => {
             const valueToCopy = e.currentTarget.getAttribute("data-value");
             if (valueToCopy) {
-                copy(valueToCopy);
+                handleClick(e, e.currentTarget.getAttribute("data-value"))
             }
         }}>{entry.record_url}</td>
 
                                 <td className="text-ellipsis" data-value={entry.description} onClick={(e) => {
             const valueToCopy = e.currentTarget.getAttribute("data-value");
             if (valueToCopy) {
-                copy(valueToCopy);
+                handleClick(e, e.currentTarget.getAttribute("data-value"))
             }
         }}>{entry.description}</td>
                             </tr>

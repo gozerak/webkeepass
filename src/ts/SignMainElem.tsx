@@ -5,7 +5,7 @@ import SignUp from "./SignUp"
 import { useNavigate } from "react-router-dom";
 import { useMessage } from "./hooks/useMessage";
 
-export const API_BASE_URL = 'https://10.1.6.30:7269'
+export const API_BASE_URL = 'https://10.4.36.105:7269'
 
 async function computeSha256Hash(message:string) {
     // Преобразуем строку в ArrayBuffer
@@ -202,7 +202,7 @@ export function LogPassInputs({isSignIn, showMessage}: {isSignIn: boolean, showM
             </div>
             <button
                 type="submit"
-                className="border-2 border-black border-opacity-35 rounded-full bg-blue-800 text-white px-16 py-2"
+                className="border-2 border-black border-opacity-35 rounded-full bg-blue-800 text-white px-12 py-2 w-min-fit"
                 >
     {isSignIn ? "Войти" : "Зарегистрироваться"}
   </button>
@@ -222,7 +222,7 @@ export default function SignMainElem() {
                 {isSignIn? <SignIn isSignIn={true} showMessage={showMessage} />: <SignUp isSignIn={false} showMessage={showMessage} />}
                 {message && (
                 <div
-                    className={`fixed bottom-5 left-1/2 transform -translate-x-1/2 h-fit w-1/4 px-4 py-2 text-white text-center rounded-md ${
+                    className={`fixed bottom-5 left-1/2 transform -translate-x-1/2 h-fit w-fit px-4 py-2 text-white text-center rounded-md ${
                         message.isError ? "bg-red-600" : "bg-green-600"
                     }`}
                 >

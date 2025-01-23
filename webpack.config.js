@@ -7,7 +7,7 @@ const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 module.exports = {
   entry: './src/index.tsx', // Входная точка
   output: {
-    path: path.resolve(__dirname, 'dist'),
+    path: path.resolve(__dirname, 'dist/'),
     filename: 'bundle.js',
     publicPath: '/'
   },
@@ -32,7 +32,7 @@ module.exports = {
     static: path.resolve(__dirname, 'public'),
     hot: true,
     open: true,
-    host: '10.1.6.30',
+    host: '10.4.36.105',
     port: 8080,
     historyApiFallback: true,
     // https: {
@@ -46,7 +46,7 @@ module.exports = {
         cert: fs.readFileSync('./serts/mail.komos-group.ru_2024.crt')
       }
     },
-    allowedHosts: ['dev.komos-group.ru', '10.1.6.30']
+    allowedHosts: ['dev.komos-group.ru', '10.4.36.105']
     },
   //   allowedHosts: [
   //     'dev.komos-group.ru',
