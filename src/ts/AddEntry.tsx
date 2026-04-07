@@ -12,21 +12,21 @@ export function AddEntryInput({title,type='text', name, value, onChange, require
     onChange: (e: ChangeEvent<HTMLInputElement>) => void,
     required?: boolean 
 }) {
-    return(
-        <div className="flex flex-col">
-            <p className="text-lg pb-3 select-none">{title}</p>
-            <input
-            className="border-2 w-4/5 border-gray-300 outline-none pl-1"
-            autoComplete="off"
-            maxLength={100}
-            type={type}
-            name={name}
-            value={value}
-            onChange={onChange}
-            required={required}
-            />
-        </div>
-    )
+    return (
+    <div className="flex flex-col gap-2 w-full">
+      <label className="text-sm font-medium text-gray-600">{title}</label>
+      <input
+        className="border rounded-lg px-3 py-2 focus:ring-2 focus:ring-green-500 outline-none"
+        autoComplete="off"
+        maxLength={100}
+        type={type}
+        name={name}
+        value={value}
+        onChange={onChange}
+        required={required}
+      />
+    </div>
+  );
 }
 
 export function createEncryptedPass (pass:string, userPass:string) {

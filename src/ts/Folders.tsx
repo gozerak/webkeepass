@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react"
 import { API_BASE_URL } from "./SignMainElem";
 import Modal from "./Modal";
 import { AddEntryInput } from "./AddEntry";
+import { Folder, Trash2 } from "lucide-react";
 
 function FolderTree({ 
     folders, 
@@ -159,6 +160,67 @@ function FolderTree({
                 }   
         </>
     );
+}
+
+interface FolderItemProps {
+  folder: FolderType;
+  chosenFolder: string;
+  toggleFolder: (id: string) => void;
+  openFolders: Set<string>;
+  handleFolder: (folder: FolderType) => void;
+  handleDeleteFolder: (id: string) => void;
+}
+
+export interface FolderType {
+  folder_id: string;
+  folder_name: string;
+  primaryFolder_id: string | null;
+  children: FolderType[];
+}
+
+function FolderItem({ folder, chosenFolder, toggleFolder, openFolders, handleFolder, handleDeleteFolder }: FolderItemProps) {
+  return (
+    <div className="flex items-center gap-2 group py-1">
+      <Folder size={16} />
+
+      <div
+        onClick={() => handleFolder(folder)}
+        className={`flex items-center gap-2 px-2 py-1 rounded-md cursor-pointer transition ${
+          folder.folder_id === chosenFolder
+            ? "bg-gray-200"
+            : "hover:bg-gray-100"
+        }`}
+      >
+        <span className="font-medium truncate max-w-[140px]">
+          {folder.folder_name}
+        </span>
+
+        {folder.children.length > 0 && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              toggleFolder(folder.folder_id);
+            }}
+            className="text-xs text-gray-500"
+          >
+            {openFolders.has(folder.folder_id) ? "−" : "+"}
+          </button>
+        )}
+
+        {folder.primaryFolder_id && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              handleDeleteFolder(folder.folder_id);
+            }}
+            className="opacity-0 group-hover:opacity-100 text-red-500 transition"
+          >
+            <Trash2 size={14} />
+          </button>
+        )}
+      </div>
+    </div>
+  );
 }
 
 export default function Folders ({
