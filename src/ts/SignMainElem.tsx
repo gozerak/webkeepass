@@ -4,8 +4,9 @@ import SignIn from "./SignIn"
 import SignUp from "./SignUp"
 import { useNavigate } from "react-router-dom";
 import { useMessage } from "./hooks/useMessage";
+import { Key, LogIn, UserPlus } from "lucide-react";
 
-export const API_BASE_URL = 'https://10.4.36.105:7269'
+export const API_BASE_URL = 'https://10.1.4.59:7269'
 
 async function computeSha256Hash(message:string) {
     // Преобразуем строку в ArrayBuffer
@@ -211,24 +212,171 @@ export function LogPassInputs({isSignIn, showMessage}: {isSignIn: boolean, showM
 }
 
 export default function SignMainElem() {
-    const [isSignIn, setIsSignIn] = useState(true);
-    const { message, showMessage } = useMessage();
-    return(
-        <div className="flex flex-col items-center mt-32 min-w-16">
-            <div className="flex justify-center  w-1/5 flex-row h-min mt-5 items-center">
-                <div className="flex justify-center items-center w-1/3 p-1 border-r-0  h-min border-2 hover:cursor-pointer" onClick={!isSignIn? ()=> setIsSignIn(true): undefined}>Войти</div>
-                <div className="flex justify-center items-center w-2/3 p-1 h-min border-2 hover:cursor-pointer" onClick={isSignIn? ()=> setIsSignIn(false): undefined}>Зарегистрироваться</div>
-            </div>
-                {isSignIn? <SignIn isSignIn={true} showMessage={showMessage} />: <SignUp isSignIn={false} showMessage={showMessage} />}
-                {message && (
-                <div
-                    className={`fixed bottom-5 left-1/2 transform -translate-x-1/2 h-fit w-fit px-4 py-2 text-white text-center rounded-md ${
-                        message.isError ? "bg-red-600" : "bg-green-600"
-                    }`}
-                >
-                    {message.text}
-                </div>
-            )}
+  const [isSignIn, setIsSignIn] = useState(true);
+  const [loginData, setLoginData] = useState({ login: '', password: '' });
+  const { message, showMessage } = useMessage();
+
+  const navigate = useNavigate();
+
+    async function handleLogIn(e: React.FormEvent<HTMLFormElement>) {
+        e.preventDefault();
+        const passwordHash = await computeSha256Hash(loginData.password);
+        const forBrowserHash = await computeHmacSha256 (loginData.password, 'zxcArtemdolboebzxc');
+
+        const userData = {
+            userName: loginData.login,
+            userPasswordHash: passwordHash
+        }
+        const url = `${API_BASE_URL}/api/User/GetUser`;
+
+        const isSuccess = await sendHash(userData, url, showMessage)
+        console.log(passwordHash)
+        if (isSuccess) {
+            sessionStorage.setItem('pass', forBrowserHash)
+            navigate("/");
+        }
+
+    }
+
+    async function handleSignUp(e: React.FormEvent<HTMLFormElement>) {
+        e.preventDefault();
+        const passwordHash = await computeSha256Hash(loginData.password);
+
+        const signUpData = {
+            user_login:loginData.login,
+            user_password:passwordHash}
+
+        const url = `${API_BASE_URL}/api/User/CreateUser`  
+        
+        sendHash(signUpData, url, showMessage)
+
+    }
+
+  return (
+    <div className="w-full max-w-4xl flex flex-col items-center">
+        
+        <div className="flex bg-gray-100 p-1 rounded-2xl mb-8 w-full h-20 max-w-md">
+          <button
+            onClick={() => setIsSignIn(true)}
+            className={`flex-1 px-6 py-3 rounded-xl font-medium transition-all duration-200 flex items-center justify-center gap-2 ${isSignIn
+                ? 'bg-white text-blue-600 shadow-md'
+                : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+              }`}
+          >
+            <LogIn className="w-4 h-4" />
+            Войти
+          </button>
+          <button
+            onClick={() => setIsSignIn(false)}
+            className={`flex-1 px-6 py-3 rounded-xl font-medium transition-all duration-200 flex items-center justify-center gap-2 ${!isSignIn
+                ? 'bg-white text-purple-600 shadow-md'
+                : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+              }`}
+          >
+            <UserPlus className="w-4 h-4" />
+            Зарегистрироваться
+          </button>
         </div>
-    )
+
+        
+        <form
+          onSubmit={(e) => {
+            e.preventDefault(); // Предотвращаем стандартное поведение
+            if (isSignIn) {
+              handleLogIn(e);
+            } else {
+              handleSignUp(e);
+            }
+          }}
+          className="w-full max-w-md bg-white rounded-2xl shadow-xl p-8 space-y-6 mx-2"
+        >
+          <div className="">
+            <div className=" w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-blue-500 to-purple-500 rounded-2xl flex items-center justify-center">
+              <Key className="w-8 h-8 text-white" />
+            </div>
+            <h2 className="text-center text-2xl font-bold text-gray-800">
+              {isSignIn ? 'Добро пожаловать!' : 'Создать аккаунт'}
+            </h2>
+            <p className="text-center text-gray-600 mt-2">
+              {isSignIn ? 'Войдите в свой аккаунт' : 'Зарегистрируйтесь для начала работы'}
+            </p>
+
+          <div className="flex flex-col">
+            <div className="flex flex-col h-24 w-9/10 px-4">
+
+              <label className="text-sm font-medium text-gray-700">
+                Логин
+              </label>
+              <input
+                value={loginData.login}
+                maxLength={50}
+                className=" px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200"
+                type="text"
+                placeholder="Введите логин"
+                onChange={(e) => setLoginData({ ...loginData, login: e.target.value })}
+                />
+                </div>
+              <div className="flex flex-col h-24 pb-8 w-9/10 px-4 mb-4">
+
+              <label className="text-sm font-medium text-gray-700 mb-2">
+                Пароль
+              </label>
+              <input
+                value={loginData.password}
+                maxLength={50}
+                className=" px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200"
+                type="password"
+                placeholder="Введите пароль"
+                onChange={(e) => setLoginData({ ...loginData, password: e.target.value })}
+                />
+                </div>
+          
+          <button
+            type="submit"
+            className="mb-4 py-3 px-12 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-medium rounded-lg hover:from-blue-700 hover:to-purple-700 focus:outline-none"
+            >
+            {isSignIn ? (
+                <span className="flex items-center justify-center gap-2">
+                <LogIn className="w-4 h-4" />
+                Войти
+              </span>
+            ) : (
+                <span className="flex items-center justify-center gap-2">
+                <UserPlus className="w-4 h-4" />
+                Зарегистрироваться
+              </span>
+            )}
+          </button>
+            </div>
+          </div>
+        </form>
+
+        
+        {message && (
+  <div
+    className={`fixed bottom-6 h-10 left-1/2 transform -translate-x-1/2 px-6 py-3 rounded-lg shadow-lg animate-slideUp
+      max-w-sm w-full z-50 ${
+      message.isError
+        ? 'bg-gradient-to-r from-red-500 to-red-600'
+        : 'bg-gradient-to-r from-green-500 to-emerald-600'
+    }`}
+    
+  >
+    <div className="flex items-center gap-3 text-white">
+      {message.isError ? (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      ) : (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+        </svg>
+      )}
+      <span className="font-medium flex-1">{message.text}</span>
+      
+    </div>
+  </div>
+)}
+    </div>
+  );
 }

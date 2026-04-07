@@ -52,13 +52,13 @@ export default function MainPage({pass}: {pass:string | null}) {
     const folderTree = buildFolderTree(folders, entries);
     const [chosenFolder, setChosenFolder] = useState("");
 // console.log(folders)
-    return(
-        <div className="w-full h-full">
-            <Header pass ={pass} folders={folders} chosenFolder={chosenFolder} refresh={refreshEntries}/>
-            <div className="flex flex-row overflow-y-auto ">
-                <Folders folders={folderTree} foldersForSelect={folders} chosenFolder={chosenFolder} refresh={refreshEntries} setChosenFolder={setChosenFolder} />
-                <Entries userId={userId} authToken={authToken} entries={entries} chosenFolder={chosenFolder} refreshEntriesData={refreshEntries} foldersForSelect={folders} />
-            </div>
-        </div>
-    )
+    return (
+    <div className="w-full h-full">
+      <Header pass={pass} folders={folders} chosenFolder={chosenFolder} refresh={refreshEntries} />
+      <div className="flex flex-row overflow-y-auto">
+        <Folders folders={folderTree} foldersForSelect={folders} chosenFolder={chosenFolder} refresh={refreshEntries} setChosenFolder={setChosenFolder} />
+        <Entries userId={userId} authToken={authToken} entries={entries} chosenFolder={chosenFolder} refreshEntriesData={refreshEntries} foldersForSelect={folders} />
+      </div>
+    </div>
+  );
 }
